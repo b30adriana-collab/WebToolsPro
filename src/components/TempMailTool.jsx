@@ -3,6 +3,7 @@ import { Mail, Copy, RefreshCcw, Trash2, AlertCircle } from 'lucide-react';
 
 export default function TempMailTool() {
   const [email, setEmail] = useState('');
+  const [token, setToken] = useState('');
   const [messages, setMessages] = useState([]);
   const [loading, setLoading] = useState(false);
   const [viewMessage, setViewMessage] = useState(null);
@@ -16,12 +17,16 @@ export default function TempMailTool() {
     setLoading(true);
     setErrorMsg('');
     try {
-      const res = await fetch('/api/mail?action=genRandomMailbox');
+      const res = await fetch('/api/mail?action=get_email_address');
       if (!res.ok) throw new Error("Server proxy error");
       const data = await res.json();
-      setEmail(data[0]);
+      setEmail(data.email_addr);
+      setToken(data.sid_token);
       setMessages([]);
       setViewMessage(null);
+      
+      // Auto check inbox to get the welcome email
+      setTimeout(() => checkInboxReal(data.sid_token), 2000);
     } catch (e) {
       console.error(e);
       setErrorMsg('Nu s-a putut genera un email nou. Încearcă din nou.');
@@ -29,16 +34,30 @@ export default function TempMailTool() {
     setLoading(false);
   };
 
-  const checkInbox = async () => {
-    if (!email) return;
-    setLoading(true);
-    setErrorMsg('');
-    const [login, domain] = email.split('@');
+  const checkInboxReal = async (sid_token) => {
     try {
-      const res = await fetch(`/api/mail?action=getMessages&login=${login}&domain=${domain}`);
+      const res = await fetch(`/api/mail?action=check_email&sid_token=${sid_token}`);
       if (!res.ok) throw new Error("Server proxy error");
       const data = await res.json();
-      setMessages(data);
+      if (data && data.list) {
+        setMessages(data.list);
+      }
+    } catch (e) {
+      console.error(e);
+    }
+  };
+
+  const checkInbox = async () => {
+    if (!token) return;
+    setLoading(true);
+    setErrorMsg('');
+    try {
+      const res = await fetch(`/api/mail?action=check_email&sid_token=${token}`);
+      if (!res.ok) throw new Error("Server proxy error");
+      const data = await res.json();
+      if (data && data.list) {
+        setMessages(data.list);
+      }
     } catch (e) {
       console.error(e);
       setErrorMsg('Nu s-a putut verifica inbox-ul.');
@@ -46,15 +65,19 @@ export default function TempMailTool() {
     setLoading(false);
   };
 
-  const readMessage = async (id) => {
+  const readMessage = async (id, fallbackBody) => {
+    // Guerrillamail check_email already gives us the body sometimes, but let's fetch it fully
     setLoading(true);
     setErrorMsg('');
-    const [login, domain] = email.split('@');
     try {
-      const res = await fetch(`/api/mail?action=readMessage&login=${login}&domain=${domain}&id=${id}`);
+      const res = await fetch(`/api/mail?action=fetch_email&email_id=${id}&sid_token=${token}`);
       if (!res.ok) throw new Error("Server proxy error");
       const data = await res.json();
-      setViewMessage(data);
+      setViewMessage({
+        subject: data.mail_subject || 'No Subject',
+        from: data.mail_from || 'Unknown',
+        textBody: data.mail_body || fallbackBody || 'Mesajul este gol.'
+      });
     } catch (e) {
       console.error(e);
       setErrorMsg('Nu s-a putut citi mesajul.');
@@ -92,7 +115,7 @@ export default function TempMailTool() {
             <Copy size={20} /> Copy
           </button>
           <button onClick={generateEmail} className="bg-gray-800 hover:bg-gray-900 text-white p-3 rounded-lg font-bold transition">
-            <RefreshCcw size={20} className={loading && !email ? 'animate-spin' : ''} />
+            <Trash2 size={20} />
           </button>
         </div>
       </div>
@@ -117,12 +140,12 @@ export default function TempMailTool() {
             </div>
           ) : (
             messages.map(msg => (
-              <div key={msg.id} onClick={() => readMessage(msg.id)} className="p-4 hover:bg-gray-50 cursor-pointer flex justify-between items-center transition">
+              <div key={msg.mail_id} onClick={() => readMessage(msg.mail_id, msg.mail_body)} className="p-4 hover:bg-gray-50 cursor-pointer flex justify-between items-center transition">
                 <div className="truncate pr-4">
-                  <p className="font-bold text-gray-800">{msg.from}</p>
-                  <p className="text-gray-600 text-sm truncate">{msg.subject || 'No Subject'}</p>
+                  <p className="font-bold text-gray-800">{msg.mail_from}</p>
+                  <p className="text-gray-600 text-sm truncate">{msg.mail_subject || 'No Subject'}</p>
                 </div>
-                <span className="text-xs text-gray-400 whitespace-nowrap">{msg.date}</span>
+                <span className="text-xs text-gray-400 whitespace-nowrap">{msg.mail_date}</span>
               </div>
             ))
           )}
