@@ -18,8 +18,9 @@ import ColorConverterTool from './components/ColorConverterTool';
 import { SlugGenerator, CaseConverter, ReverseText, WhitespaceRemover, HtmlEntityEncoder, BinaryConverter, MorseConverter, RandomGenerator, UuidGenerator, Sha256Generator, LuhnValidator, PercentageCalc, DiscountCalc, TipCalc, BmiCalc, TempConverter, LengthConverter, WeightConverter, Stopwatch, DeviceResolution } from './components/ExtraTools';
 import { LoanCalc, RoiCalc, MarginCalc, SalaryCalc, SpeedConv, VolConv, AreaConv, DateDiff, AgeCalc, LeapYear, PrimeCheck, BaseConv, AvgCalc, TextToHex, HexToText, UnixConv, RegexTester, LineBreakRemover, DupLineRemover, Alphabetizer, DataSizeConv, IpFinder, MacGen, CsvToJson, JsonToCsv, RomanConv, CagrCalc, DaysToTarget, MdToHtml, AsciiConv } from './components/ExtraTools2';
 
-// Mega Tools
+// Mega Tools 1 & 2
 import { MEGA_TOOLS_CONFIG, MegaToolEngine } from './components/MegaTools';
+import { MEGA_TOOLS_CONFIG_2 } from './components/MegaTools2';
 
 // Premium & Money-Savers
 import { SpeechToTextTool, TextToSpeechTool, MemeGeneratorTool, PomodoroTool, TodoListTool } from './components/PremiumTools';
@@ -30,7 +31,7 @@ import AdBanner from './components/AdBanner';
 const iconMap = {
   Activity: <Activity/>, Box: <Box/>, BoxSelect: <BoxSelect/>, Calculator: <Calculator/>,
   Code: <Code/>, Globe: <Globe/>, Hash: <Hash/>, Key: <Key/>, Link2: <Link2/>,
-  Lock: <Lock/>, Palette: <Palette/>, Type: <Type/>, Circle: <Activity/>, Square: <Square/>, Triangle: <Triangle/>
+  Lock: <Lock/>, Palette: <Palette/>, Type: <Type/>, Circle: <Activity/>, Square: <Square/>, Triangle: <Triangle/>, FileDigit: <FileDigit/>, RefreshCcw: <RefreshCcw/>
 };
 
 const BASE_TOOLS = [
@@ -119,7 +120,7 @@ const BASE_TOOLS = [
   { cat: "Dev & Misc", path: "/mac", name: "MAC Generator", icon: <Lock/>, elem: <MacGen/> },
 ];
 
-const MEGA_TOOLS = MEGA_TOOLS_CONFIG.map(t => ({
+const MEGA_TOOLS = [...MEGA_TOOLS_CONFIG, ...MEGA_TOOLS_CONFIG_2].map(t => ({
   cat: t.cat,
   path: t.path,
   name: t.name,
@@ -129,8 +130,8 @@ const MEGA_TOOLS = MEGA_TOOLS_CONFIG.map(t => ({
 
 const TOOLS = [...BASE_TOOLS, ...MEGA_TOOLS];
 
-// Category display order
-const CAT_ORDER = ["🔥 Premium Apps", "💰 Money Savers", "Popular", "Financial", "Time & Dates", "Text & Code", "Math & Converters", "Dev & Misc"];
+// Category display order (Dynamically includes any newly generated cats like Science & Physics)
+const DEFAULT_ORDER = ["🔥 Premium Apps", "💰 Money Savers", "Popular", "Financial", "Science & Physics", "Time & Dates", "Text & Code", "Math & Converters", "Math & Statistics", "Dev & Misc", "Health"];
 
 function MobileMenu() {
   const [open, setOpen] = useState(false);
@@ -160,7 +161,7 @@ const ToolCard = ({ t }) => {
   return (
     <Link to={t.path} className={`p-4 bg-white border ${isPremium ? 'border-purple-300 shadow-sm' : 'border-gray-200'} rounded-2xl hover:border-blue-400 hover:shadow-lg transition-all group flex flex-col items-center text-center relative overflow-hidden`}>
       {isPremium && <div className="absolute top-0 right-0 bg-purple-500 text-white text-[10px] font-black px-2 py-1 rounded-bl-lg">HOT</div>}
-      <div className={`${isPremium ? 'text-purple-600 bg-purple-50' : 'text-blue-500 bg-blue-50'} mb-3 group-hover:scale-110 transition-transform p-3 rounded-full`}>
+      <div className={`${isPremium ? 'text-purple-600 bg-purple-50' : 'text-blue-500 bg-blue-50'} mb-3 group-hover:scale-110 transition-transform p-3 rounded-full flex items-center justify-center min-h-[48px] min-w-[48px]`}>
         {t.icon}
       </div>
       <h4 className="font-bold text-gray-800 text-sm leading-tight">{t.name}</h4>
@@ -171,14 +172,15 @@ const ToolCard = ({ t }) => {
 function HomePage() {
   const [search, setSearch] = useState('');
   
-  // Find categories in order
+  // Find all categories dynamically
   const presentCats = [...new Set(TOOLS.map(t => t.cat))];
-  const orderedCats = CAT_ORDER.filter(c => presentCats.includes(c));
+  // Sort them so default order comes first, rest follow
+  const orderedCats = [...DEFAULT_ORDER.filter(c => presentCats.includes(c)), ...presentCats.filter(c => !DEFAULT_ORDER.includes(c))];
 
   // If searching, show flat list
   const isSearching = search.trim().length > 0;
   const filteredFlat = useMemo(() => {
-    return isSearching ? TOOLS.filter(t => t.name.toLowerCase().includes(search.toLowerCase())) : [];
+    return isSearching ? TOOLS.filter(t => t.name.toLowerCase().includes(search.toLowerCase()) || t.cat.toLowerCase().includes(search.toLowerCase())) : [];
   }, [search, isSearching]);
 
   return (
@@ -196,7 +198,7 @@ function HomePage() {
         <input
           type="text"
           className="block w-full pl-14 pr-4 py-5 border-2 border-gray-200 rounded-3xl leading-5 bg-white placeholder-gray-400 font-bold text-gray-800 focus:outline-none focus:border-blue-500 focus:ring-0 transition-all shadow-sm text-lg"
-          placeholder="Search among 130+ tools (e.g. Invoice, Image, PDF)..."
+          placeholder={`Search among ${TOOLS.length} tools (e.g. Physics, Invoice, PDF)...`}
           value={search}
           onChange={(e) => setSearch(e.target.value)}
         />
@@ -211,7 +213,7 @@ function HomePage() {
               No tools found matching "{search}".
             </div>
           ) : (
-            <div className="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-4 xl:grid-cols-5 gap-4">
+             <div className="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-4 xl:grid-cols-5 gap-4">
               {filteredFlat.map(t => <ToolCard key={t.path} t={t} />)}
             </div>
           )}
