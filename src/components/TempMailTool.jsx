@@ -1,4 +1,4 @@
-import { useState, useEffect } from 'react';
+﻿import { useState, useEffect } from 'react';
 import { Mail, Copy, RefreshCcw, Trash2 } from 'lucide-react';
 
 export default function TempMailTool() {
@@ -15,13 +15,13 @@ export default function TempMailTool() {
   const generateEmail = async () => {
     setLoading(true);
     try {
-      const res = await fetch('https://www.1secmail.com/api/v1/?action=genRandomMailbox&count=1');
+      const res = await fetch('/api/mail?action=genRandomMailbox&count=1');
       const data = await res.json();
       setEmail(data[0]);
       setMessages([]);
       setViewMessage(null);
     } catch (e) {
-      console.error(e);
+      console.error('Failed to generate mail:', e);
     }
     setLoading(false);
   };
@@ -31,11 +31,11 @@ export default function TempMailTool() {
     setLoading(true);
     const [login, domain] = email.split('@');
     try {
-      const res = await fetch(`https://www.1secmail.com/api/v1/?action=getMessages&login=${login}&domain=${domain}`);
+      const res = await fetch(`/api/mail?action=getMessages&login=${login}&domain=${domain}`);
       const data = await res.json();
       setMessages(data);
     } catch (e) {
-      console.error(e);
+      console.error('Failed to check inbox:', e);
     }
     setLoading(false);
   };
@@ -44,11 +44,11 @@ export default function TempMailTool() {
     setLoading(true);
     const [login, domain] = email.split('@');
     try {
-      const res = await fetch(`https://www.1secmail.com/api/v1/?action=readMessage&login=${login}&domain=${domain}&id=${id}`);
+      const res = await fetch(`/api/mail?action=readMessage&login=${login}&domain=${domain}&id=${id}`);
       const data = await res.json();
       setViewMessage(data);
     } catch (e) {
-      console.error(e);
+      console.error('Failed to read message:', e);
     }
     setLoading(false);
   };
@@ -118,7 +118,6 @@ export default function TempMailTool() {
             <button onClick={() => setViewMessage(null)} className="text-gray-400 hover:text-gray-600 font-bold text-sm">Close</button>
           </div>
           <div className="p-6 text-gray-700 whitespace-pre-wrap">
-            {/* Some HTML emails need dangerouslySetInnerHTML, but for safety we prefer textBody */}
             {viewMessage.textBody || "Message is empty."}
           </div>
         </div>
