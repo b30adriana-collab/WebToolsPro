@@ -1,6 +1,6 @@
 ﻿import { BrowserRouter as Router, Routes, Route, Link, useLocation } from 'react-router-dom';
-import { LayoutGrid, Menu, X, Mail, QrCode, Image as ImageIcon, Key, Type, Code, ArrowRightLeft, Link2, AlignLeft, Palette, Type as TypeIcon, Hash, RefreshCcw, Calculator, Activity, Monitor, Watch, Clock, Scissors, Globe, Lock, ShieldCheck, BoxSelect, Box, FileDigit } from 'lucide-react';
-import { useState } from 'react';
+import { LayoutGrid, Menu, X, Mail, QrCode, Image as ImageIcon, Key, Type, Code, ArrowRightLeft, Link2, AlignLeft, Palette, Type as TypeIcon, Hash, RefreshCcw, Calculator, Activity, Monitor, Watch, Clock, Scissors, Globe, Lock, ShieldCheck, BoxSelect, Box, FileDigit, Search, Filter } from 'lucide-react';
+import { useState, useMemo } from 'react';
 
 // Original Tools
 import QRTool from './components/QRTool';
@@ -16,14 +16,20 @@ import ColorConverterTool from './components/ColorConverterTool';
 
 // Extra Tools
 import { SlugGenerator, CaseConverter, ReverseText, WhitespaceRemover, HtmlEntityEncoder, BinaryConverter, MorseConverter, RandomGenerator, UuidGenerator, Sha256Generator, LuhnValidator, PercentageCalc, DiscountCalc, TipCalc, BmiCalc, TempConverter, LengthConverter, WeightConverter, Stopwatch, DeviceResolution } from './components/ExtraTools';
+
+// Extra Tools 2
+import { LoanCalc, RoiCalc, MarginCalc, SalaryCalc, SpeedConv, VolConv, AreaConv, DateDiff, AgeCalc, LeapYear, PrimeCheck, BaseConv, AvgCalc, TextToHex, HexToText, UnixConv, RegexTester, LineBreakRemover, DupLineRemover, Alphabetizer, DataSizeConv, IpFinder, MacGen, CsvToJson, JsonToCsv, RomanConv, CagrCalc, DaysToTarget, MdToHtml, AsciiConv } from './components/ExtraTools2';
+
 import AdBanner from './components/AdBanner';
 
 const TOOLS = [
+  // Popular
   { cat: "Popular", path: "/mail", name: "Temp Mail", icon: <Mail/>, elem: <TempMailTool/> },
   { cat: "Popular", path: "/qr", name: "QR Gen", icon: <QrCode/>, elem: <QRTool/> },
   { cat: "Popular", path: "/image", name: "WebP Image", icon: <ImageIcon/>, elem: <ImageTool/> },
   { cat: "Popular", path: "/password", name: "Passwords", icon: <Key/>, elem: <PasswordTool/> },
   
+  // Text & Code
   { cat: "Text & Code", path: "/text", name: "Word Count", icon: <Type/>, elem: <TextCounterTool/> },
   { cat: "Text & Code", path: "/json", name: "JSON Formatter", icon: <Code/>, elem: <JsonFormatterTool/> },
   { cat: "Text & Code", path: "/base64", name: "Base64", icon: <ArrowRightLeft/>, elem: <Base64Tool/> },
@@ -36,7 +42,18 @@ const TOOLS = [
   { cat: "Text & Code", path: "/html", name: "HTML Entity", icon: <Code/>, elem: <HtmlEntityEncoder/> },
   { cat: "Text & Code", path: "/binary", name: "Binary Converter", icon: <FileDigit/>, elem: <BinaryConverter/> },
   { cat: "Text & Code", path: "/morse", name: "Morse Code", icon: <Activity/>, elem: <MorseConverter/> },
+  { cat: "Text & Code", path: "/text2hex", name: "Text to Hex", icon: <Code/>, elem: <TextToHex/> },
+  { cat: "Text & Code", path: "/hex2text", name: "Hex to Text", icon: <Code/>, elem: <HexToText/> },
+  { cat: "Text & Code", path: "/regex", name: "Regex Tester", icon: <Code/>, elem: <RegexTester/> },
+  { cat: "Text & Code", path: "/nobreak", name: "Line Break Remover", icon: <Scissors/>, elem: <LineBreakRemover/> },
+  { cat: "Text & Code", path: "/nodup", name: "Remove Dupes", icon: <Scissors/>, elem: <DupLineRemover/> },
+  { cat: "Text & Code", path: "/alpha", name: "Alphabetize", icon: <TypeIcon/>, elem: <Alphabetizer/> },
+  { cat: "Text & Code", path: "/csv2json", name: "CSV to JSON", icon: <Code/>, elem: <CsvToJson/> },
+  { cat: "Text & Code", path: "/json2csv", name: "JSON to CSV", icon: <Code/>, elem: <JsonToCsv/> },
+  { cat: "Text & Code", path: "/md2html", name: "MD to HTML", icon: <Code/>, elem: <MdToHtml/> },
+  { cat: "Text & Code", path: "/ascii", name: "Text to ASCII", icon: <Code/>, elem: <AsciiConv/> },
 
+  // Math & Converters
   { cat: "Math & Converters", path: "/random", name: "Random Number", icon: <Hash/>, elem: <RandomGenerator/> },
   { cat: "Math & Converters", path: "/percentage", name: "Percentage", icon: <Calculator/>, elem: <PercentageCalc/> },
   { cat: "Math & Converters", path: "/discount", name: "Discount", icon: <Calculator/>, elem: <DiscountCalc/> },
@@ -45,13 +62,38 @@ const TOOLS = [
   { cat: "Math & Converters", path: "/temp", name: "Temperature", icon: <Box/>, elem: <TempConverter/> },
   { cat: "Math & Converters", path: "/length", name: "Length Units", icon: <BoxSelect/>, elem: <LengthConverter/> },
   { cat: "Math & Converters", path: "/weight", name: "Weight Units", icon: <Box/>, elem: <WeightConverter/> },
+  { cat: "Math & Converters", path: "/speed", name: "Speed Converter", icon: <Activity/>, elem: <SpeedConv/> },
+  { cat: "Math & Converters", path: "/volume", name: "Volume Converter", icon: <Box/>, elem: <VolConv/> },
+  { cat: "Math & Converters", path: "/area", name: "Area Converter", icon: <BoxSelect/>, elem: <AreaConv/> },
+  { cat: "Math & Converters", path: "/prime", name: "Prime Checker", icon: <Hash/>, elem: <PrimeCheck/> },
+  { cat: "Math & Converters", path: "/base", name: "Base Converter", icon: <Hash/>, elem: <BaseConv/> },
+  { cat: "Math & Converters", path: "/avg", name: "Average Calc", icon: <Calculator/>, elem: <AvgCalc/> },
+  { cat: "Math & Converters", path: "/roman", name: "Roman Numerals", icon: <Hash/>, elem: <RomanConv/> },
+  
+  // Financial
+  { cat: "Financial", path: "/loan", name: "Loan Calc", icon: <Calculator/>, elem: <LoanCalc/> },
+  { cat: "Financial", path: "/roi", name: "ROI Calc", icon: <Calculator/>, elem: <RoiCalc/> },
+  { cat: "Financial", path: "/margin", name: "Profit Margin", icon: <Calculator/>, elem: <MarginCalc/> },
+  { cat: "Financial", path: "/salary", name: "Salary Calc", icon: <Calculator/>, elem: <SalaryCalc/> },
+  { cat: "Financial", path: "/cagr", name: "CAGR Calc", icon: <Calculator/>, elem: <CagrCalc/> },
+  
+  // Time & Dates
+  { cat: "Time & Dates", path: "/datediff", name: "Date Difference", icon: <Clock/>, elem: <DateDiff/> },
+  { cat: "Time & Dates", path: "/age", name: "Age Calculator", icon: <Clock/>, elem: <AgeCalc/> },
+  { cat: "Time & Dates", path: "/leap", name: "Leap Year", icon: <Clock/>, elem: <LeapYear/> },
+  { cat: "Time & Dates", path: "/unix", name: "Unix Timestamp", icon: <Clock/>, elem: <UnixConv/> },
+  { cat: "Time & Dates", path: "/countdown", name: "Countdown", icon: <Clock/>, elem: <DaysToTarget/> },
 
+  // Dev & Misc
   { cat: "Dev & Misc", path: "/color", name: "Color Picker", icon: <Palette/>, elem: <ColorConverterTool/> },
   { cat: "Dev & Misc", path: "/uuid", name: "UUID Generator", icon: <Lock/>, elem: <UuidGenerator/> },
   { cat: "Dev & Misc", path: "/sha256", name: "SHA-256 Hash", icon: <Lock/>, elem: <Sha256Generator/> },
   { cat: "Dev & Misc", path: "/luhn", name: "Credit Card Check", icon: <ShieldCheck/>, elem: <LuhnValidator/> },
   { cat: "Dev & Misc", path: "/stopwatch", name: "Stopwatch", icon: <Clock/>, elem: <Stopwatch/> },
   { cat: "Dev & Misc", path: "/screen", name: "Screen Res", icon: <Monitor/>, elem: <DeviceResolution/> },
+  { cat: "Dev & Misc", path: "/datasize", name: "Data Size Conv", icon: <BoxSelect/>, elem: <DataSizeConv/> },
+  { cat: "Dev & Misc", path: "/ip", name: "What is my IP?", icon: <Globe/>, elem: <IpFinder/> },
+  { cat: "Dev & Misc", path: "/mac", name: "MAC Generator", icon: <Lock/>, elem: <MacGen/> },
 ];
 
 function MobileMenu() {
@@ -74,9 +116,79 @@ function MobileMenu() {
   );
 }
 
-export default function App() {
-  const categories = [...new Set(TOOLS.map(t => t.cat))];
+function HomePage() {
+  const categories = ["All", ...new Set(TOOLS.map(t => t.cat))];
+  const [search, setSearch] = useState('');
+  const [filter, setFilter] = useState('All');
 
+  const filteredTools = useMemo(() => {
+    return TOOLS.filter(t => {
+      const matchSearch = t.name.toLowerCase().includes(search.toLowerCase());
+      const matchCat = filter === 'All' || t.cat === filter;
+      return matchSearch && matchCat;
+    });
+  }, [search, filter]);
+
+  return (
+    <div className="py-8">
+      <div className="text-center mb-8">
+        <h2 className="text-3xl font-bold text-gray-800 mb-4">Ultimate Free Web Tools</h2>
+        <p className="text-gray-500 max-w-2xl mx-auto">A collection of {TOOLS.length} completely free utilities for developers, writers, and designers. Everything runs securely in your browser.</p>
+      </div>
+
+      {/* Search Bar */}
+      <div className="max-w-xl mx-auto mb-6 relative">
+        <div className="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none">
+          <Search className="h-5 w-5 text-gray-400" />
+        </div>
+        <input
+          type="text"
+          className="block w-full pl-10 pr-3 py-3 border border-gray-300 rounded-xl leading-5 bg-white placeholder-gray-500 focus:outline-none focus:placeholder-gray-400 focus:ring-1 focus:ring-blue-500 focus:border-blue-500 sm:text-sm transition duration-150 ease-in-out"
+          placeholder="Search for a tool (e.g. JSON, Password, UUID)..."
+          value={search}
+          onChange={(e) => setSearch(e.target.value)}
+        />
+      </div>
+
+      {/* Filter Chips */}
+      <div className="flex flex-wrap justify-center gap-2 mb-10">
+        {categories.map(cat => (
+          <button
+            key={cat}
+            onClick={() => setFilter(cat)}
+            className={`px-4 py-2 rounded-full text-sm font-medium transition ${
+              filter === cat 
+                ? 'bg-blue-600 text-white shadow-md' 
+                : 'bg-gray-100 text-gray-600 hover:bg-gray-200'
+            }`}
+          >
+            {cat}
+          </button>
+        ))}
+      </div>
+      
+      {/* Tools Grid */}
+      {filteredTools.length === 0 ? (
+        <div className="text-center text-gray-500 py-10">
+          No tools found matching your search.
+        </div>
+      ) : (
+        <div className="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-4 gap-4">
+          {filteredTools.map(t => (
+            <Link key={t.path} to={t.path} className="p-4 border border-gray-200 rounded-xl hover:border-blue-500 hover:shadow-md transition-all group flex flex-col items-center text-center">
+              <div className="text-blue-600 mb-3 group-hover:scale-110 transition-transform">
+                {t.icon}
+              </div>
+              <h4 className="font-semibold text-gray-800 text-sm">{t.name}</h4>
+            </Link>
+          ))}
+        </div>
+      )}
+    </div>
+  );
+}
+
+export default function App() {
   return (
     <Router>
       <div className="min-h-screen flex flex-col font-sans bg-gray-100">
@@ -104,43 +216,20 @@ export default function App() {
         <main className="flex-1 flex flex-col md:flex-row w-full max-w-[1600px] mx-auto p-4 gap-6">
           
           <aside className="hidden md:flex flex-col w-[250px] shrink-0 gap-4">
-            <div className="w-full h-[600px] bg-white rounded-xl border border-gray-200 overflow-hidden relative shadow-sm">
+            <div className="w-full h-[600px] bg-white rounded-xl border border-gray-200 overflow-hidden relative shadow-sm sticky top-24">
               <AdBanner slot="left-1" format="vertical" />
             </div>
           </aside>
 
           <div className="flex-1 bg-white rounded-2xl shadow-sm border border-gray-200 min-h-[600px] p-6 relative">
             <Routes>
-              <Route path="/" element={
-                <div className="py-8">
-                  <div className="text-center mb-12">
-                    <h2 className="text-3xl font-bold text-gray-800 mb-4">Ultimate Free Web Tools</h2>
-                    <p className="text-gray-500 max-w-2xl mx-auto">A collection of 26 completely free utilities for developers, writers, and designers. Everything runs securely in your browser.</p>
-                  </div>
-                  
-                  {categories.map(cat => (
-                    <div key={cat} className="mb-10">
-                      <h3 className="text-xl font-bold text-gray-800 mb-4 border-b pb-2">{cat}</h3>
-                      <div className="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-4 gap-4">
-                        {TOOLS.filter(t => t.cat === cat).map(t => (
-                          <Link key={t.path} to={t.path} className="p-4 border border-gray-200 rounded-xl hover:border-blue-500 hover:shadow-md transition-all group flex flex-col items-center text-center">
-                            <div className="text-blue-600 mb-3 group-hover:scale-110 transition-transform">
-                              {t.icon}
-                            </div>
-                            <h4 className="font-semibold text-gray-800 text-sm">{t.name}</h4>
-                          </Link>
-                        ))}
-                      </div>
-                    </div>
-                  ))}
-                </div>
-              } />
+              <Route path="/" element={<HomePage />} />
               {TOOLS.map(t => <Route key={t.path} path={t.path} element={t.elem} />)}
             </Routes>
           </div>
 
           <aside className="hidden md:flex flex-col w-[250px] shrink-0 gap-4">
-            <div className="w-full h-[600px] bg-white rounded-xl border border-gray-200 overflow-hidden relative shadow-sm">
+            <div className="w-full h-[600px] bg-white rounded-xl border border-gray-200 overflow-hidden relative shadow-sm sticky top-24">
               <AdBanner slot="right-1" format="vertical" />
             </div>
           </aside>
