@@ -1,10 +1,11 @@
-﻿import { BrowserRouter as Router, Routes, Route, Link } from 'react-router-dom';
+import { BrowserRouter as Router, Routes, Route, Link } from 'react-router-dom';
 import { QrCode, Image as ImageIcon, Key, LayoutGrid, Mail } from 'lucide-react';
 
 import QRTool from './components/QRTool';
 import ImageTool from './components/ImageTool';
 import PasswordTool from './components/PasswordTool';
 import TempMailTool from './components/TempMailTool';
+import AdBanner from './components/AdBanner';
 
 export default function App() {
   return (
@@ -38,8 +39,8 @@ export default function App() {
           
           {/* Left Ad */}
           <aside className="hidden md:flex flex-col w-[250px] shrink-0 gap-4">
-            <div className="w-full h-[600px] bg-gray-200 rounded-xl border border-gray-300 flex items-center justify-center relative">
-              <span className="absolute top-2 text-xs uppercase tracking-widest text-gray-400">Advertisement</span>
+            <div className="w-full h-[600px] bg-white rounded-xl border border-gray-200 overflow-hidden relative shadow-sm">
+              <AdBanner slot="left-1" format="vertical" />
             </div>
           </aside>
 
@@ -79,8 +80,8 @@ export default function App() {
 
           {/* Right Ad */}
           <aside className="hidden md:flex flex-col w-[250px] shrink-0 gap-4">
-            <div className="w-full h-[600px] bg-gray-200 rounded-xl border border-gray-300 flex items-center justify-center relative">
-              <span className="absolute top-2 text-xs uppercase tracking-widest text-gray-400">Advertisement</span>
+            <div className="w-full h-[600px] bg-white rounded-xl border border-gray-200 overflow-hidden relative shadow-sm">
+              <AdBanner slot="right-1" format="vertical" />
             </div>
           </aside>
         </main>
