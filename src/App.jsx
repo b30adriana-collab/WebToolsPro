@@ -1,7 +1,8 @@
 ﻿import { BrowserRouter as Router, Routes, Route, Link, useLocation } from 'react-router-dom';
-import { QrCode, Image as ImageIcon, Key, LayoutGrid, Mail, Type, Code, ArrowRightLeft, Link2, AlignLeft, Palette, Menu, X } from 'lucide-react';
+import { LayoutGrid, Menu, X, Mail, QrCode, Image as ImageIcon, Key, Type, Code, ArrowRightLeft, Link2, AlignLeft, Palette, Type as TypeIcon, Hash, RefreshCcw, Calculator, Activity, Monitor, Watch, Clock, Scissors, Globe, Lock, ShieldCheck, BoxSelect, Box, FileDigit } from 'lucide-react';
 import { useState } from 'react';
 
+// Original Tools
 import QRTool from './components/QRTool';
 import ImageTool from './components/ImageTool';
 import PasswordTool from './components/PasswordTool';
@@ -12,34 +13,59 @@ import Base64Tool from './components/Base64Tool';
 import UrlEncoderTool from './components/UrlEncoderTool';
 import LoremIpsumTool from './components/LoremIpsumTool';
 import ColorConverterTool from './components/ColorConverterTool';
+
+// Extra Tools
+import { SlugGenerator, CaseConverter, ReverseText, WhitespaceRemover, HtmlEntityEncoder, BinaryConverter, MorseConverter, RandomGenerator, UuidGenerator, Sha256Generator, LuhnValidator, PercentageCalc, DiscountCalc, TipCalc, BmiCalc, TempConverter, LengthConverter, WeightConverter, Stopwatch, DeviceResolution } from './components/ExtraTools';
 import AdBanner from './components/AdBanner';
+
+const TOOLS = [
+  { cat: "Popular", path: "/mail", name: "Temp Mail", icon: <Mail/>, elem: <TempMailTool/> },
+  { cat: "Popular", path: "/qr", name: "QR Gen", icon: <QrCode/>, elem: <QRTool/> },
+  { cat: "Popular", path: "/image", name: "WebP Image", icon: <ImageIcon/>, elem: <ImageTool/> },
+  { cat: "Popular", path: "/password", name: "Passwords", icon: <Key/>, elem: <PasswordTool/> },
+  
+  { cat: "Text & Code", path: "/text", name: "Word Count", icon: <Type/>, elem: <TextCounterTool/> },
+  { cat: "Text & Code", path: "/json", name: "JSON Formatter", icon: <Code/>, elem: <JsonFormatterTool/> },
+  { cat: "Text & Code", path: "/base64", name: "Base64", icon: <ArrowRightLeft/>, elem: <Base64Tool/> },
+  { cat: "Text & Code", path: "/url", name: "URL Encoder", icon: <Link2/>, elem: <UrlEncoderTool/> },
+  { cat: "Text & Code", path: "/lorem", name: "Lorem Ipsum", icon: <AlignLeft/>, elem: <LoremIpsumTool/> },
+  { cat: "Text & Code", path: "/slug", name: "Slug Generator", icon: <Globe/>, elem: <SlugGenerator/> },
+  { cat: "Text & Code", path: "/case", name: "Case Converter", icon: <TypeIcon/>, elem: <CaseConverter/> },
+  { cat: "Text & Code", path: "/reverse", name: "Reverse Text", icon: <RefreshCcw/>, elem: <ReverseText/> },
+  { cat: "Text & Code", path: "/whitespace", name: "Remove Spaces", icon: <Scissors/>, elem: <WhitespaceRemover/> },
+  { cat: "Text & Code", path: "/html", name: "HTML Entity", icon: <Code/>, elem: <HtmlEntityEncoder/> },
+  { cat: "Text & Code", path: "/binary", name: "Binary Converter", icon: <FileDigit/>, elem: <BinaryConverter/> },
+  { cat: "Text & Code", path: "/morse", name: "Morse Code", icon: <Activity/>, elem: <MorseConverter/> },
+
+  { cat: "Math & Converters", path: "/random", name: "Random Number", icon: <Hash/>, elem: <RandomGenerator/> },
+  { cat: "Math & Converters", path: "/percentage", name: "Percentage", icon: <Calculator/>, elem: <PercentageCalc/> },
+  { cat: "Math & Converters", path: "/discount", name: "Discount", icon: <Calculator/>, elem: <DiscountCalc/> },
+  { cat: "Math & Converters", path: "/tip", name: "Tip Split", icon: <Calculator/>, elem: <TipCalc/> },
+  { cat: "Math & Converters", path: "/bmi", name: "BMI Calculator", icon: <Activity/>, elem: <BmiCalc/> },
+  { cat: "Math & Converters", path: "/temp", name: "Temperature", icon: <Box/>, elem: <TempConverter/> },
+  { cat: "Math & Converters", path: "/length", name: "Length Units", icon: <BoxSelect/>, elem: <LengthConverter/> },
+  { cat: "Math & Converters", path: "/weight", name: "Weight Units", icon: <Box/>, elem: <WeightConverter/> },
+
+  { cat: "Dev & Misc", path: "/color", name: "Color Picker", icon: <Palette/>, elem: <ColorConverterTool/> },
+  { cat: "Dev & Misc", path: "/uuid", name: "UUID Generator", icon: <Lock/>, elem: <UuidGenerator/> },
+  { cat: "Dev & Misc", path: "/sha256", name: "SHA-256 Hash", icon: <Lock/>, elem: <Sha256Generator/> },
+  { cat: "Dev & Misc", path: "/luhn", name: "Credit Card Check", icon: <ShieldCheck/>, elem: <LuhnValidator/> },
+  { cat: "Dev & Misc", path: "/stopwatch", name: "Stopwatch", icon: <Clock/>, elem: <Stopwatch/> },
+  { cat: "Dev & Misc", path: "/screen", name: "Screen Res", icon: <Monitor/>, elem: <DeviceResolution/> },
+];
 
 function MobileMenu() {
   const [open, setOpen] = useState(false);
-  
-  const navLinks = [
-    { to: "/mail", icon: <Mail size={18} />, label: "Temp Mail" },
-    { to: "/qr", icon: <QrCode size={18} />, label: "QR Gen" },
-    { to: "/image", icon: <ImageIcon size={18} />, label: "WebP Image" },
-    { to: "/password", icon: <Key size={18} />, label: "Passwords" },
-    { to: "/text", icon: <Type size={18} />, label: "Word Count" },
-    { to: "/json", icon: <Code size={18} />, label: "JSON Formatter" },
-    { to: "/base64", icon: <ArrowRightLeft size={18} />, label: "Base64" },
-    { to: "/url", icon: <Link2 size={18} />, label: "URL Encoder" },
-    { to: "/lorem", icon: <AlignLeft size={18} />, label: "Lorem Ipsum" },
-    { to: "/color", icon: <Palette size={18} />, label: "Color Picker" },
-  ];
-
   return (
     <div className="md:hidden flex items-center">
       <button onClick={() => setOpen(!open)} className="text-gray-800 p-2">
         {open ? <X size={24} /> : <Menu size={24} />}
       </button>
       {open && (
-        <div className="absolute top-16 left-0 w-full bg-white border-b border-gray-200 shadow-lg p-4 flex flex-col gap-4 z-50">
-          {navLinks.map((link) => (
-            <Link key={link.to} to={link.to} onClick={() => setOpen(false)} className="flex items-center gap-3 text-gray-700 font-medium hover:text-blue-600">
-              {link.icon} {link.label}
+        <div className="absolute top-16 left-0 w-full bg-white border-b border-gray-200 shadow-lg p-4 flex flex-col gap-4 z-50 max-h-[80vh] overflow-y-auto">
+          {TOOLS.map((t) => (
+            <Link key={t.path} to={t.path} onClick={() => setOpen(false)} className="flex items-center gap-3 text-gray-700 font-medium hover:text-blue-600">
+              <span className="opacity-70 scale-75">{t.icon}</span> {t.name}
             </Link>
           ))}
         </div>
@@ -49,6 +75,8 @@ function MobileMenu() {
 }
 
 export default function App() {
+  const categories = [...new Set(TOOLS.map(t => t.cat))];
+
   return (
     <Router>
       <div className="min-h-screen flex flex-col font-sans bg-gray-100">
@@ -62,99 +90,55 @@ export default function App() {
           
           <MobileMenu />
 
-          {/* Desktop Nav (scrollable horizontally if too many) */}
+          {/* Desktop Nav - Just a few top ones so it fits */}
           <nav className="hidden md:flex gap-4 overflow-x-auto items-center pr-2">
-            <Link to="/mail" className="flex items-center gap-1.5 text-sm font-medium text-gray-600 hover:text-blue-600 whitespace-nowrap"><Mail size={16}/> Temp Mail</Link>
-            <Link to="/qr" className="flex items-center gap-1.5 text-sm font-medium text-gray-600 hover:text-blue-600 whitespace-nowrap"><QrCode size={16}/> QR Code</Link>
-            <Link to="/image" className="flex items-center gap-1.5 text-sm font-medium text-gray-600 hover:text-blue-600 whitespace-nowrap"><ImageIcon size={16}/> Image</Link>
-            <Link to="/password" className="flex items-center gap-1.5 text-sm font-medium text-gray-600 hover:text-blue-600 whitespace-nowrap"><Key size={16}/> Passwords</Link>
-            <Link to="/text" className="flex items-center gap-1.5 text-sm font-medium text-gray-600 hover:text-blue-600 whitespace-nowrap"><Type size={16}/> Words</Link>
-            <Link to="/json" className="flex items-center gap-1.5 text-sm font-medium text-gray-600 hover:text-blue-600 whitespace-nowrap"><Code size={16}/> JSON</Link>
-            {/* Some hidden on very small desktop to save space, visible on homepage */}
-            <Link to="/color" className="hidden lg:flex items-center gap-1.5 text-sm font-medium text-gray-600 hover:text-blue-600 whitespace-nowrap"><Palette size={16}/> Colors</Link>
+            {TOOLS.slice(0, 6).map(t => (
+              <Link key={t.path} to={t.path} className="flex items-center gap-1.5 text-sm font-medium text-gray-600 hover:text-blue-600 whitespace-nowrap">
+                <span className="scale-75">{t.icon}</span> {t.name}
+              </Link>
+            ))}
           </nav>
         </header>
 
         {/* Ad Layout */}
         <main className="flex-1 flex flex-col md:flex-row w-full max-w-[1600px] mx-auto p-4 gap-6">
           
-          {/* Left Ad */}
           <aside className="hidden md:flex flex-col w-[250px] shrink-0 gap-4">
             <div className="w-full h-[600px] bg-white rounded-xl border border-gray-200 overflow-hidden relative shadow-sm">
               <AdBanner slot="left-1" format="vertical" />
             </div>
           </aside>
 
-          {/* Main Content */}
           <div className="flex-1 bg-white rounded-2xl shadow-sm border border-gray-200 min-h-[600px] p-6 relative">
             <Routes>
               <Route path="/" element={
-                <div className="text-center py-8">
-                  <h2 className="text-3xl font-bold text-gray-800 mb-4">Ultimate Free Web Tools</h2>
-                  <p className="text-gray-500 mb-8 max-w-2xl mx-auto">A collection of 100% free utilities for developers, writers, and designers. Everything runs securely in your browser.</p>
-                  
-                  <div className="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-4 gap-4 max-w-5xl mx-auto">
-                    
-                    <Link to="/mail" className="p-6 border border-gray-200 rounded-xl hover:border-blue-500 hover:shadow-md transition-all group flex flex-col items-center">
-                      <Mail size={32} className="text-blue-600 mb-3 group-hover:scale-110 transition-transform" />
-                      <h3 className="font-semibold text-gray-800 text-sm">Temp Mail</h3>
-                    </Link>
-                    <Link to="/qr" className="p-6 border border-gray-200 rounded-xl hover:border-blue-500 hover:shadow-md transition-all group flex flex-col items-center">
-                      <QrCode size={32} className="text-blue-600 mb-3 group-hover:scale-110 transition-transform" />
-                      <h3 className="font-semibold text-gray-800 text-sm">QR Generator</h3>
-                    </Link>
-                    <Link to="/image" className="p-6 border border-gray-200 rounded-xl hover:border-blue-500 hover:shadow-md transition-all group flex flex-col items-center">
-                      <ImageIcon size={32} className="text-blue-600 mb-3 group-hover:scale-110 transition-transform" />
-                      <h3 className="font-semibold text-gray-800 text-sm">Image to WebP</h3>
-                    </Link>
-                    <Link to="/password" className="p-6 border border-gray-200 rounded-xl hover:border-blue-500 hover:shadow-md transition-all group flex flex-col items-center">
-                      <Key size={32} className="text-blue-600 mb-3 group-hover:scale-110 transition-transform" />
-                      <h3 className="font-semibold text-gray-800 text-sm">Secure Passwords</h3>
-                    </Link>
-                    
-                    <Link to="/text" className="p-6 border border-gray-200 rounded-xl hover:border-blue-500 hover:shadow-md transition-all group flex flex-col items-center">
-                      <Type size={32} className="text-blue-600 mb-3 group-hover:scale-110 transition-transform" />
-                      <h3 className="font-semibold text-gray-800 text-sm">Word Counter</h3>
-                    </Link>
-                    <Link to="/json" className="p-6 border border-gray-200 rounded-xl hover:border-blue-500 hover:shadow-md transition-all group flex flex-col items-center">
-                      <Code size={32} className="text-blue-600 mb-3 group-hover:scale-110 transition-transform" />
-                      <h3 className="font-semibold text-gray-800 text-sm">JSON Formatter</h3>
-                    </Link>
-                    <Link to="/base64" className="p-6 border border-gray-200 rounded-xl hover:border-blue-500 hover:shadow-md transition-all group flex flex-col items-center">
-                      <ArrowRightLeft size={32} className="text-blue-600 mb-3 group-hover:scale-110 transition-transform" />
-                      <h3 className="font-semibold text-gray-800 text-sm">Base64 Encode</h3>
-                    </Link>
-                    <Link to="/url" className="p-6 border border-gray-200 rounded-xl hover:border-blue-500 hover:shadow-md transition-all group flex flex-col items-center">
-                      <Link2 size={32} className="text-blue-600 mb-3 group-hover:scale-110 transition-transform" />
-                      <h3 className="font-semibold text-gray-800 text-sm">URL Decoder</h3>
-                    </Link>
-                    
-                    <Link to="/lorem" className="p-6 border border-gray-200 rounded-xl hover:border-blue-500 hover:shadow-md transition-all group flex flex-col items-center">
-                      <AlignLeft size={32} className="text-blue-600 mb-3 group-hover:scale-110 transition-transform" />
-                      <h3 className="font-semibold text-gray-800 text-sm">Lorem Ipsum</h3>
-                    </Link>
-                    <Link to="/color" className="p-6 border border-gray-200 rounded-xl hover:border-blue-500 hover:shadow-md transition-all group flex flex-col items-center">
-                      <Palette size={32} className="text-blue-600 mb-3 group-hover:scale-110 transition-transform" />
-                      <h3 className="font-semibold text-gray-800 text-sm">Color Picker</h3>
-                    </Link>
-
+                <div className="py-8">
+                  <div className="text-center mb-12">
+                    <h2 className="text-3xl font-bold text-gray-800 mb-4">Ultimate Free Web Tools</h2>
+                    <p className="text-gray-500 max-w-2xl mx-auto">A collection of 26 completely free utilities for developers, writers, and designers. Everything runs securely in your browser.</p>
                   </div>
+                  
+                  {categories.map(cat => (
+                    <div key={cat} className="mb-10">
+                      <h3 className="text-xl font-bold text-gray-800 mb-4 border-b pb-2">{cat}</h3>
+                      <div className="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-4 gap-4">
+                        {TOOLS.filter(t => t.cat === cat).map(t => (
+                          <Link key={t.path} to={t.path} className="p-4 border border-gray-200 rounded-xl hover:border-blue-500 hover:shadow-md transition-all group flex flex-col items-center text-center">
+                            <div className="text-blue-600 mb-3 group-hover:scale-110 transition-transform">
+                              {t.icon}
+                            </div>
+                            <h4 className="font-semibold text-gray-800 text-sm">{t.name}</h4>
+                          </Link>
+                        ))}
+                      </div>
+                    </div>
+                  ))}
                 </div>
               } />
-              <Route path="/mail" element={<TempMailTool />} />
-              <Route path="/qr" element={<QRTool />} />
-              <Route path="/image" element={<ImageTool />} />
-              <Route path="/password" element={<PasswordTool />} />
-              <Route path="/text" element={<TextCounterTool />} />
-              <Route path="/json" element={<JsonFormatterTool />} />
-              <Route path="/base64" element={<Base64Tool />} />
-              <Route path="/url" element={<UrlEncoderTool />} />
-              <Route path="/lorem" element={<LoremIpsumTool />} />
-              <Route path="/color" element={<ColorConverterTool />} />
+              {TOOLS.map(t => <Route key={t.path} path={t.path} element={t.elem} />)}
             </Routes>
           </div>
 
-          {/* Right Ad */}
           <aside className="hidden md:flex flex-col w-[250px] shrink-0 gap-4">
             <div className="w-full h-[600px] bg-white rounded-xl border border-gray-200 overflow-hidden relative shadow-sm">
               <AdBanner slot="right-1" format="vertical" />
