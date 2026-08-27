@@ -1,5 +1,5 @@
 ﻿import { BrowserRouter as Router, Routes, Route, Link } from 'react-router-dom';
-import { LayoutGrid, Menu, X, Mail, QrCode, Image as ImageIcon, Key, Type, Code, ArrowRightLeft, Link2, AlignLeft, Palette, Type as TypeIcon, Hash, RefreshCcw, Calculator, Activity, Monitor, Clock, Scissors, Globe, Lock, ShieldCheck, BoxSelect, Box, FileDigit, Search, Square, Triangle } from 'lucide-react';
+import { LayoutGrid, Menu, X, Mail, QrCode, Image as ImageIcon, Key, Type, Code, ArrowRightLeft, Link2, AlignLeft, Palette, Type as TypeIcon, Hash, RefreshCcw, Calculator, Activity, Monitor, Clock, Scissors, Globe, Lock, ShieldCheck, BoxSelect, Box, FileDigit, Search, Square, Triangle, Mic, Volume2, ImagePlay, CheckSquare, Timer } from 'lucide-react';
 import { useState, useMemo } from 'react';
 
 // Original Tools
@@ -23,9 +23,11 @@ import { LoanCalc, RoiCalc, MarginCalc, SalaryCalc, SpeedConv, VolConv, AreaConv
 // 100 Mega Tools
 import { MEGA_TOOLS_CONFIG, MegaToolEngine } from './components/MegaTools';
 
+// Premium Tools
+import { SpeechToTextTool, TextToSpeechTool, MemeGeneratorTool, PomodoroTool, TodoListTool } from './components/PremiumTools';
+
 import AdBanner from './components/AdBanner';
 
-// Icon mapper for the generic tools
 const iconMap = {
   Activity: <Activity/>, Box: <Box/>, BoxSelect: <BoxSelect/>, Calculator: <Calculator/>,
   Code: <Code/>, Globe: <Globe/>, Hash: <Hash/>, Key: <Key/>, Link2: <Link2/>,
@@ -33,6 +35,13 @@ const iconMap = {
 };
 
 const BASE_TOOLS = [
+  // Premium / High-Value
+  { cat: "Premium Apps", path: "/dictation", name: "Voice to Text", icon: <Mic/>, elem: <SpeechToTextTool/> },
+  { cat: "Premium Apps", path: "/reader", name: "Text to Speech", icon: <Volume2/>, elem: <TextToSpeechTool/> },
+  { cat: "Premium Apps", path: "/meme", name: "Meme Generator", icon: <ImagePlay/>, elem: <MemeGeneratorTool/> },
+  { cat: "Premium Apps", path: "/pomodoro", name: "Pomodoro Timer", icon: <Timer/>, elem: <PomodoroTool/> },
+  { cat: "Premium Apps", path: "/todo", name: "Task Manager", icon: <CheckSquare/>, elem: <TodoListTool/> },
+
   // Popular
   { cat: "Popular", path: "/mail", name: "Temp Mail", icon: <Mail/>, elem: <TempMailTool/> },
   { cat: "Popular", path: "/qr", name: "QR Gen", icon: <QrCode/>, elem: <QRTool/> },
@@ -140,7 +149,7 @@ function MobileMenu() {
 }
 
 function HomePage() {
-  const categories = ["All", ...new Set(TOOLS.map(t => t.cat))];
+  const categories = ["All", "Premium Apps", ...new Set(TOOLS.map(t => t.cat).filter(c => c !== "Premium Apps"))];
   const [search, setSearch] = useState('');
   const [filter, setFilter] = useState('All');
 
@@ -167,14 +176,14 @@ function HomePage() {
         <input
           type="text"
           className="block w-full pl-12 pr-4 py-4 border-2 border-gray-200 rounded-2xl leading-5 bg-white placeholder-gray-400 font-medium text-gray-800 focus:outline-none focus:border-blue-500 focus:ring-0 transition-all shadow-sm"
-          placeholder="Search for a tool (e.g. JSON, Convert, Area)..."
+          placeholder="Search for a tool (e.g. Meme, Dictation, Json)..."
           value={search}
           onChange={(e) => setSearch(e.target.value)}
         />
       </div>
 
       {/* Filter Chips */}
-      <div className="flex flex-wrap justify-center gap-2 mb-10 max-w-4xl mx-auto">
+      <div className="flex flex-wrap justify-center gap-2 mb-10 max-w-5xl mx-auto">
         {categories.map(cat => (
           <button
             key={cat}
@@ -182,10 +191,11 @@ function HomePage() {
             className={`px-4 py-2 rounded-full text-sm font-bold transition-all ${
               filter === cat 
                 ? 'bg-blue-600 text-white shadow-md scale-105' 
+                : cat === 'Premium Apps' ? 'bg-gradient-to-r from-purple-100 to-pink-100 text-purple-700 hover:from-purple-200 hover:to-pink-200 border-transparent'
                 : 'bg-white border border-gray-200 text-gray-600 hover:bg-gray-50'
             }`}
           >
-            {cat}
+            {cat === 'Premium Apps' ? '🔥 ' + cat : cat}
           </button>
         ))}
       </div>
@@ -198,14 +208,18 @@ function HomePage() {
         </div>
       ) : (
         <div className="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-4 xl:grid-cols-5 gap-4">
-          {filteredTools.map(t => (
-            <Link key={t.path} to={t.path} className="p-4 bg-white border border-gray-200 rounded-2xl hover:border-blue-400 hover:shadow-lg transition-all group flex flex-col items-center text-center">
-              <div className="text-blue-500 mb-3 group-hover:scale-110 transition-transform bg-blue-50 p-3 rounded-full">
-                {t.icon}
-              </div>
-              <h4 className="font-bold text-gray-800 text-sm leading-tight">{t.name}</h4>
-            </Link>
-          ))}
+          {filteredTools.map(t => {
+            const isPremium = t.cat === "Premium Apps";
+            return (
+              <Link key={t.path} to={t.path} className={`p-4 bg-white border ${isPremium ? 'border-purple-300 shadow-sm' : 'border-gray-200'} rounded-2xl hover:border-blue-400 hover:shadow-lg transition-all group flex flex-col items-center text-center relative overflow-hidden`}>
+                {isPremium && <div className="absolute top-0 right-0 bg-purple-500 text-white text-[10px] font-black px-2 py-1 rounded-bl-lg">HOT</div>}
+                <div className={`${isPremium ? 'text-purple-600 bg-purple-50' : 'text-blue-500 bg-blue-50'} mb-3 group-hover:scale-110 transition-transform p-3 rounded-full`}>
+                  {t.icon}
+                </div>
+                <h4 className="font-bold text-gray-800 text-sm leading-tight">{t.name}</h4>
+              </Link>
+            );
+          })}
         </div>
       )}
     </div>
