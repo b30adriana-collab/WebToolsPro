@@ -7,7 +7,9 @@ export default function TempMailTool() {
   const [loading, setLoading] = useState(false);
   const [viewMessage, setViewMessage] = useState(null);
 
-  // Generate random email on mount
+  // Free CORS proxy to bypass browser restrictions
+  const corsProxy = 'https://corsproxy.io/?';
+
   useEffect(() => {
     generateEmail();
   }, []);
@@ -15,7 +17,8 @@ export default function TempMailTool() {
   const generateEmail = async () => {
     setLoading(true);
     try {
-      const res = await fetch('/api/mail?action=genRandomMailbox&count=1');
+      const targetUrl = 'https://www.1secmail.com/api/v1/?action=genRandomMailbox&count=1';
+      const res = await fetch(corsProxy + encodeURIComponent(targetUrl));
       const data = await res.json();
       setEmail(data[0]);
       setMessages([]);
@@ -31,7 +34,8 @@ export default function TempMailTool() {
     setLoading(true);
     const [login, domain] = email.split('@');
     try {
-      const res = await fetch(`/api/mail?action=getMessages&login=${login}&domain=${domain}`);
+      const targetUrl = `https://www.1secmail.com/api/v1/?action=getMessages&login=${login}&domain=${domain}`;
+      const res = await fetch(corsProxy + encodeURIComponent(targetUrl));
       const data = await res.json();
       setMessages(data);
     } catch (e) {
@@ -44,7 +48,8 @@ export default function TempMailTool() {
     setLoading(true);
     const [login, domain] = email.split('@');
     try {
-      const res = await fetch(`/api/mail?action=readMessage&login=${login}&domain=${domain}&id=${id}`);
+      const targetUrl = `https://www.1secmail.com/api/v1/?action=readMessage&login=${login}&domain=${domain}&id=${id}`;
+      const res = await fetch(corsProxy + encodeURIComponent(targetUrl));
       const data = await res.json();
       setViewMessage(data);
     } catch (e) {

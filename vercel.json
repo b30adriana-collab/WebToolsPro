@@ -1,12 +1,8 @@
 ﻿{
   "rewrites": [
     {
-      "source": "/api/mail",
-      "destination": "https://www.1secmail.com/api/v1/"
-    },
-    {
       "source": "/(.*)",
-      "destination": "/"
+      "destination": "/index.html"
     }
   ]
 }
