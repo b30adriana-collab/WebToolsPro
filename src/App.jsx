@@ -1,5 +1,5 @@
 ﻿import { BrowserRouter as Router, Routes, Route, Link } from 'react-router-dom';
-import { LayoutGrid, Menu, X, Mail, QrCode, Image as ImageIcon, Key, Type, Code, ArrowRightLeft, Link2, AlignLeft, Palette, Type as TypeIcon, Hash, RefreshCcw, Calculator, Activity, Monitor, Clock, Scissors, Globe, Lock, ShieldCheck, BoxSelect, Box, FileDigit, Search, Square, Triangle, Mic, Volume2, ImagePlay, CheckSquare, Timer } from 'lucide-react';
+import { LayoutGrid, Menu, X, Mail, QrCode, Image as ImageIcon, Key, Type, Code, ArrowRightLeft, Link2, AlignLeft, Palette, Type as TypeIcon, Hash, RefreshCcw, Calculator, Activity, Monitor, Clock, Scissors, Globe, Lock, ShieldCheck, BoxSelect, Box, FileDigit, Search, Square, Triangle, Mic, Volume2, ImagePlay, CheckSquare, Timer, FileText, BarChart, Printer } from 'lucide-react';
 import { useState, useMemo } from 'react';
 
 // Original Tools
@@ -16,15 +16,14 @@ import ColorConverterTool from './components/ColorConverterTool';
 
 // Extra Tools
 import { SlugGenerator, CaseConverter, ReverseText, WhitespaceRemover, HtmlEntityEncoder, BinaryConverter, MorseConverter, RandomGenerator, UuidGenerator, Sha256Generator, LuhnValidator, PercentageCalc, DiscountCalc, TipCalc, BmiCalc, TempConverter, LengthConverter, WeightConverter, Stopwatch, DeviceResolution } from './components/ExtraTools';
-
-// Extra Tools 2
 import { LoanCalc, RoiCalc, MarginCalc, SalaryCalc, SpeedConv, VolConv, AreaConv, DateDiff, AgeCalc, LeapYear, PrimeCheck, BaseConv, AvgCalc, TextToHex, HexToText, UnixConv, RegexTester, LineBreakRemover, DupLineRemover, Alphabetizer, DataSizeConv, IpFinder, MacGen, CsvToJson, JsonToCsv, RomanConv, CagrCalc, DaysToTarget, MdToHtml, AsciiConv } from './components/ExtraTools2';
 
-// 100 Mega Tools
+// Mega Tools
 import { MEGA_TOOLS_CONFIG, MegaToolEngine } from './components/MegaTools';
 
-// Premium Tools
+// Premium & Money-Savers
 import { SpeechToTextTool, TextToSpeechTool, MemeGeneratorTool, PomodoroTool, TodoListTool } from './components/PremiumTools';
+import { InvoiceGeneratorTool, SeoAnalyzerTool, ColorExtractorTool } from './components/MoneySavers';
 
 import AdBanner from './components/AdBanner';
 
@@ -36,11 +35,16 @@ const iconMap = {
 
 const BASE_TOOLS = [
   // Premium / High-Value
-  { cat: "Premium Apps", path: "/dictation", name: "Voice to Text", icon: <Mic/>, elem: <SpeechToTextTool/> },
-  { cat: "Premium Apps", path: "/reader", name: "Text to Speech", icon: <Volume2/>, elem: <TextToSpeechTool/> },
-  { cat: "Premium Apps", path: "/meme", name: "Meme Generator", icon: <ImagePlay/>, elem: <MemeGeneratorTool/> },
-  { cat: "Premium Apps", path: "/pomodoro", name: "Pomodoro Timer", icon: <Timer/>, elem: <PomodoroTool/> },
-  { cat: "Premium Apps", path: "/todo", name: "Task Manager", icon: <CheckSquare/>, elem: <TodoListTool/> },
+  { cat: "🔥 Premium Apps", path: "/dictation", name: "Voice to Text", icon: <Mic/>, elem: <SpeechToTextTool/> },
+  { cat: "🔥 Premium Apps", path: "/reader", name: "Text to Speech", icon: <Volume2/>, elem: <TextToSpeechTool/> },
+  { cat: "🔥 Premium Apps", path: "/meme", name: "Meme Generator", icon: <ImagePlay/>, elem: <MemeGeneratorTool/> },
+  { cat: "🔥 Premium Apps", path: "/pomodoro", name: "Pomodoro Timer", icon: <Timer/>, elem: <PomodoroTool/> },
+  { cat: "🔥 Premium Apps", path: "/todo", name: "Task Manager", icon: <CheckSquare/>, elem: <TodoListTool/> },
+
+  // SaaS Money-Savers
+  { cat: "💰 Money Savers", path: "/invoice", name: "Invoice Maker", icon: <FileText/>, elem: <InvoiceGeneratorTool/> },
+  { cat: "💰 Money Savers", path: "/seo", name: "SEO Analyzer", icon: <BarChart/>, elem: <SeoAnalyzerTool/> },
+  { cat: "💰 Money Savers", path: "/palette", name: "Color Extractor", icon: <Palette/>, elem: <ColorExtractorTool/> },
 
   // Popular
   { cat: "Popular", path: "/mail", name: "Temp Mail", icon: <Mail/>, elem: <TempMailTool/> },
@@ -125,6 +129,9 @@ const MEGA_TOOLS = MEGA_TOOLS_CONFIG.map(t => ({
 
 const TOOLS = [...BASE_TOOLS, ...MEGA_TOOLS];
 
+// Category display order
+const CAT_ORDER = ["🔥 Premium Apps", "💰 Money Savers", "Popular", "Financial", "Time & Dates", "Text & Code", "Math & Converters", "Dev & Misc"];
+
 function MobileMenu() {
   const [open, setOpen] = useState(false);
   return (
@@ -148,78 +155,82 @@ function MobileMenu() {
   );
 }
 
-function HomePage() {
-  const categories = ["All", "Premium Apps", ...new Set(TOOLS.map(t => t.cat).filter(c => c !== "Premium Apps"))];
-  const [search, setSearch] = useState('');
-  const [filter, setFilter] = useState('All');
+const ToolCard = ({ t }) => {
+  const isPremium = t.cat === "🔥 Premium Apps" || t.cat === "💰 Money Savers";
+  return (
+    <Link to={t.path} className={`p-4 bg-white border ${isPremium ? 'border-purple-300 shadow-sm' : 'border-gray-200'} rounded-2xl hover:border-blue-400 hover:shadow-lg transition-all group flex flex-col items-center text-center relative overflow-hidden`}>
+      {isPremium && <div className="absolute top-0 right-0 bg-purple-500 text-white text-[10px] font-black px-2 py-1 rounded-bl-lg">HOT</div>}
+      <div className={`${isPremium ? 'text-purple-600 bg-purple-50' : 'text-blue-500 bg-blue-50'} mb-3 group-hover:scale-110 transition-transform p-3 rounded-full`}>
+        {t.icon}
+      </div>
+      <h4 className="font-bold text-gray-800 text-sm leading-tight">{t.name}</h4>
+    </Link>
+  );
+};
 
-  const filteredTools = useMemo(() => {
-    return TOOLS.filter(t => {
-      const matchSearch = t.name.toLowerCase().includes(search.toLowerCase());
-      const matchCat = filter === 'All' || t.cat === filter;
-      return matchSearch && matchCat;
-    });
-  }, [search, filter]);
+function HomePage() {
+  const [search, setSearch] = useState('');
+  
+  // Find categories in order
+  const presentCats = [...new Set(TOOLS.map(t => t.cat))];
+  const orderedCats = CAT_ORDER.filter(c => presentCats.includes(c));
+
+  // If searching, show flat list
+  const isSearching = search.trim().length > 0;
+  const filteredFlat = useMemo(() => {
+    return isSearching ? TOOLS.filter(t => t.name.toLowerCase().includes(search.toLowerCase())) : [];
+  }, [search, isSearching]);
 
   return (
-    <div className="py-8">
-      <div className="text-center mb-8">
-        <h2 className="text-4xl font-black text-gray-800 mb-4 bg-clip-text text-transparent bg-gradient-to-r from-blue-600 to-purple-600">Ultimate Free Web Tools</h2>
-        <p className="text-gray-500 max-w-2xl mx-auto font-medium">A massive collection of {TOOLS.length} completely free utilities for developers, writers, and designers. Everything runs securely in your browser.</p>
+    <div className="py-8 print:hidden">
+      <div className="text-center mb-12">
+        <h2 className="text-4xl md:text-5xl font-black text-gray-800 mb-6 bg-clip-text text-transparent bg-gradient-to-r from-blue-600 to-purple-600">Ultimate Free Web Tools</h2>
+        <p className="text-gray-500 max-w-2xl mx-auto font-medium text-lg">A massive collection of {TOOLS.length} completely free utilities for developers, writers, and designers. Everything runs securely in your browser.</p>
       </div>
 
       {/* Search Bar */}
-      <div className="max-w-xl mx-auto mb-6 relative">
+      <div className="max-w-2xl mx-auto mb-16 relative">
         <div className="absolute inset-y-0 left-0 pl-4 flex items-center pointer-events-none">
-          <Search className="h-5 w-5 text-gray-400" />
+          <Search className="h-6 w-6 text-gray-400" />
         </div>
         <input
           type="text"
-          className="block w-full pl-12 pr-4 py-4 border-2 border-gray-200 rounded-2xl leading-5 bg-white placeholder-gray-400 font-medium text-gray-800 focus:outline-none focus:border-blue-500 focus:ring-0 transition-all shadow-sm"
-          placeholder="Search for a tool (e.g. Meme, Dictation, Json)..."
+          className="block w-full pl-14 pr-4 py-5 border-2 border-gray-200 rounded-3xl leading-5 bg-white placeholder-gray-400 font-bold text-gray-800 focus:outline-none focus:border-blue-500 focus:ring-0 transition-all shadow-sm text-lg"
+          placeholder="Search among 130+ tools (e.g. Invoice, Image, PDF)..."
           value={search}
           onChange={(e) => setSearch(e.target.value)}
         />
       </div>
 
-      {/* Filter Chips */}
-      <div className="flex flex-wrap justify-center gap-2 mb-10 max-w-5xl mx-auto">
-        {categories.map(cat => (
-          <button
-            key={cat}
-            onClick={() => setFilter(cat)}
-            className={`px-4 py-2 rounded-full text-sm font-bold transition-all ${
-              filter === cat 
-                ? 'bg-blue-600 text-white shadow-md scale-105' 
-                : cat === 'Premium Apps' ? 'bg-gradient-to-r from-purple-100 to-pink-100 text-purple-700 hover:from-purple-200 hover:to-pink-200 border-transparent'
-                : 'bg-white border border-gray-200 text-gray-600 hover:bg-gray-50'
-            }`}
-          >
-            {cat === 'Premium Apps' ? '🔥 ' + cat : cat}
-          </button>
-        ))}
-      </div>
-      
-      {/* Tools Grid */}
-      {filteredTools.length === 0 ? (
-        <div className="text-center text-gray-400 py-16 font-medium">
-          <Search className="mx-auto h-12 w-12 mb-4 opacity-20" />
-          No tools found matching your search.
+      {isSearching ? (
+        <div>
+          <h3 className="text-xl font-bold text-gray-800 mb-6 pb-2 border-b-2 border-gray-100">Search Results</h3>
+          {filteredFlat.length === 0 ? (
+            <div className="text-center text-gray-400 py-16 font-medium">
+              <Search className="mx-auto h-12 w-12 mb-4 opacity-20" />
+              No tools found matching "{search}".
+            </div>
+          ) : (
+            <div className="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-4 xl:grid-cols-5 gap-4">
+              {filteredFlat.map(t => <ToolCard key={t.path} t={t} />)}
+            </div>
+          )}
         </div>
       ) : (
-        <div className="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-4 xl:grid-cols-5 gap-4">
-          {filteredTools.map(t => {
-            const isPremium = t.cat === "Premium Apps";
-            return (
-              <Link key={t.path} to={t.path} className={`p-4 bg-white border ${isPremium ? 'border-purple-300 shadow-sm' : 'border-gray-200'} rounded-2xl hover:border-blue-400 hover:shadow-lg transition-all group flex flex-col items-center text-center relative overflow-hidden`}>
-                {isPremium && <div className="absolute top-0 right-0 bg-purple-500 text-white text-[10px] font-black px-2 py-1 rounded-bl-lg">HOT</div>}
-                <div className={`${isPremium ? 'text-purple-600 bg-purple-50' : 'text-blue-500 bg-blue-50'} mb-3 group-hover:scale-110 transition-transform p-3 rounded-full`}>
-                  {t.icon}
-                </div>
-                <h4 className="font-bold text-gray-800 text-sm leading-tight">{t.name}</h4>
-              </Link>
-            );
-          })}
+        // Categorized Layout
+        <div className="space-y-12">
+          {orderedCats.map(cat => (
+            <section key={cat} className="bg-white p-6 md:p-8 rounded-3xl border border-gray-200 shadow-sm">
+              <h3 className="text-2xl font-black text-gray-800 mb-6 pb-4 border-b-2 border-gray-100 flex items-center gap-3">
+                {cat.includes("Premium") || cat.includes("Money") ? (
+                  <span className="bg-gradient-to-r from-purple-500 to-pink-500 text-white px-3 py-1 rounded-xl text-sm">{cat}</span>
+                ) : cat}
+              </h3>
+              <div className="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-4 xl:grid-cols-5 gap-4">
+                {TOOLS.filter(t => t.cat === cat).map(t => <ToolCard key={t.path} t={t} />)}
+              </div>
+            </section>
+          ))}
         </div>
       )}
     </div>
@@ -232,7 +243,7 @@ export default function App() {
       <div className="min-h-screen flex flex-col font-sans bg-gray-50">
         
         {/* Header */}
-        <header className="bg-white border-b border-gray-200 h-16 flex items-center justify-between px-6 sticky top-0 z-50 shadow-sm">
+        <header className="bg-white border-b border-gray-200 h-16 flex items-center justify-between px-6 sticky top-0 z-50 shadow-sm print:hidden">
           <Link to="/" className="flex items-center gap-2 text-blue-600 hover:opacity-80">
             <LayoutGrid size={24} />
             <h1 className="text-xl font-black text-gray-800 tracking-tight">WebTools<span className="text-blue-600">Pro</span></h1>
@@ -250,22 +261,22 @@ export default function App() {
         </header>
 
         {/* Ad Layout */}
-        <main className="flex-1 flex flex-col md:flex-row w-full max-w-[1800px] mx-auto p-4 md:p-6 gap-6">
+        <main className="flex-1 flex flex-col md:flex-row w-full max-w-[1800px] mx-auto p-4 md:p-6 gap-6 print:m-0 print:p-0 print:block">
           
-          <aside className="hidden md:flex flex-col w-[200px] lg:w-[250px] shrink-0 gap-4">
+          <aside className="hidden md:flex flex-col w-[200px] lg:w-[250px] shrink-0 gap-4 print:hidden">
             <div className="w-full h-[600px] bg-white rounded-2xl border border-gray-200 overflow-hidden relative shadow-sm sticky top-24">
               <AdBanner slot="left-1" format="vertical" />
             </div>
           </aside>
 
-          <div className="flex-1">
+          <div className="flex-1 print:m-0 print:p-0">
             <Routes>
               <Route path="/" element={<HomePage />} />
               {TOOLS.map(t => <Route key={t.path} path={t.path} element={t.elem} />)}
             </Routes>
           </div>
 
-          <aside className="hidden md:flex flex-col w-[200px] lg:w-[250px] shrink-0 gap-4">
+          <aside className="hidden md:flex flex-col w-[200px] lg:w-[250px] shrink-0 gap-4 print:hidden">
             <div className="w-full h-[600px] bg-white rounded-2xl border border-gray-200 overflow-hidden relative shadow-sm sticky top-24">
               <AdBanner slot="right-1" format="vertical" />
             </div>
