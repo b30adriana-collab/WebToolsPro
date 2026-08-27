@@ -1,5 +1,5 @@
-﻿import { BrowserRouter as Router, Routes, Route, Link, useLocation } from 'react-router-dom';
-import { LayoutGrid, Menu, X, Mail, QrCode, Image as ImageIcon, Key, Type, Code, ArrowRightLeft, Link2, AlignLeft, Palette, Type as TypeIcon, Hash, RefreshCcw, Calculator, Activity, Monitor, Watch, Clock, Scissors, Globe, Lock, ShieldCheck, BoxSelect, Box, FileDigit, Search, Filter } from 'lucide-react';
+﻿import { BrowserRouter as Router, Routes, Route, Link } from 'react-router-dom';
+import { LayoutGrid, Menu, X, Mail, QrCode, Image as ImageIcon, Key, Type, Code, ArrowRightLeft, Link2, AlignLeft, Palette, Type as TypeIcon, Hash, RefreshCcw, Calculator, Activity, Monitor, Clock, Scissors, Globe, Lock, ShieldCheck, BoxSelect, Box, FileDigit, Search, Square, Triangle } from 'lucide-react';
 import { useState, useMemo } from 'react';
 
 // Original Tools
@@ -20,9 +20,19 @@ import { SlugGenerator, CaseConverter, ReverseText, WhitespaceRemover, HtmlEntit
 // Extra Tools 2
 import { LoanCalc, RoiCalc, MarginCalc, SalaryCalc, SpeedConv, VolConv, AreaConv, DateDiff, AgeCalc, LeapYear, PrimeCheck, BaseConv, AvgCalc, TextToHex, HexToText, UnixConv, RegexTester, LineBreakRemover, DupLineRemover, Alphabetizer, DataSizeConv, IpFinder, MacGen, CsvToJson, JsonToCsv, RomanConv, CagrCalc, DaysToTarget, MdToHtml, AsciiConv } from './components/ExtraTools2';
 
+// 100 Mega Tools
+import { MEGA_TOOLS_CONFIG, MegaToolEngine } from './components/MegaTools';
+
 import AdBanner from './components/AdBanner';
 
-const TOOLS = [
+// Icon mapper for the generic tools
+const iconMap = {
+  Activity: <Activity/>, Box: <Box/>, BoxSelect: <BoxSelect/>, Calculator: <Calculator/>,
+  Code: <Code/>, Globe: <Globe/>, Hash: <Hash/>, Key: <Key/>, Link2: <Link2/>,
+  Lock: <Lock/>, Palette: <Palette/>, Type: <Type/>, Circle: <Activity/>, Square: <Square/>, Triangle: <Triangle/>
+};
+
+const BASE_TOOLS = [
   // Popular
   { cat: "Popular", path: "/mail", name: "Temp Mail", icon: <Mail/>, elem: <TempMailTool/> },
   { cat: "Popular", path: "/qr", name: "QR Gen", icon: <QrCode/>, elem: <QRTool/> },
@@ -96,6 +106,16 @@ const TOOLS = [
   { cat: "Dev & Misc", path: "/mac", name: "MAC Generator", icon: <Lock/>, elem: <MacGen/> },
 ];
 
+const MEGA_TOOLS = MEGA_TOOLS_CONFIG.map(t => ({
+  cat: t.cat,
+  path: t.path,
+  name: t.name,
+  icon: iconMap[t.icon] || <Activity/>,
+  elem: <MegaToolEngine config={t} />
+}));
+
+const TOOLS = [...BASE_TOOLS, ...MEGA_TOOLS];
+
 function MobileMenu() {
   const [open, setOpen] = useState(false);
   return (
@@ -105,11 +125,14 @@ function MobileMenu() {
       </button>
       {open && (
         <div className="absolute top-16 left-0 w-full bg-white border-b border-gray-200 shadow-lg p-4 flex flex-col gap-4 z-50 max-h-[80vh] overflow-y-auto">
-          {TOOLS.map((t) => (
+          {TOOLS.slice(0,10).map((t) => (
             <Link key={t.path} to={t.path} onClick={() => setOpen(false)} className="flex items-center gap-3 text-gray-700 font-medium hover:text-blue-600">
               <span className="opacity-70 scale-75">{t.icon}</span> {t.name}
             </Link>
           ))}
+          <Link to="/" onClick={() => setOpen(false)} className="flex items-center gap-3 text-blue-600 font-bold mt-4 pt-4 border-t">
+            <LayoutGrid size={18}/> View All {TOOLS.length} Tools
+          </Link>
         </div>
       )}
     </div>
@@ -132,34 +155,34 @@ function HomePage() {
   return (
     <div className="py-8">
       <div className="text-center mb-8">
-        <h2 className="text-3xl font-bold text-gray-800 mb-4">Ultimate Free Web Tools</h2>
-        <p className="text-gray-500 max-w-2xl mx-auto">A collection of {TOOLS.length} completely free utilities for developers, writers, and designers. Everything runs securely in your browser.</p>
+        <h2 className="text-4xl font-black text-gray-800 mb-4 bg-clip-text text-transparent bg-gradient-to-r from-blue-600 to-purple-600">Ultimate Free Web Tools</h2>
+        <p className="text-gray-500 max-w-2xl mx-auto font-medium">A massive collection of {TOOLS.length} completely free utilities for developers, writers, and designers. Everything runs securely in your browser.</p>
       </div>
 
       {/* Search Bar */}
       <div className="max-w-xl mx-auto mb-6 relative">
-        <div className="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none">
+        <div className="absolute inset-y-0 left-0 pl-4 flex items-center pointer-events-none">
           <Search className="h-5 w-5 text-gray-400" />
         </div>
         <input
           type="text"
-          className="block w-full pl-10 pr-3 py-3 border border-gray-300 rounded-xl leading-5 bg-white placeholder-gray-500 focus:outline-none focus:placeholder-gray-400 focus:ring-1 focus:ring-blue-500 focus:border-blue-500 sm:text-sm transition duration-150 ease-in-out"
-          placeholder="Search for a tool (e.g. JSON, Password, UUID)..."
+          className="block w-full pl-12 pr-4 py-4 border-2 border-gray-200 rounded-2xl leading-5 bg-white placeholder-gray-400 font-medium text-gray-800 focus:outline-none focus:border-blue-500 focus:ring-0 transition-all shadow-sm"
+          placeholder="Search for a tool (e.g. JSON, Convert, Area)..."
           value={search}
           onChange={(e) => setSearch(e.target.value)}
         />
       </div>
 
       {/* Filter Chips */}
-      <div className="flex flex-wrap justify-center gap-2 mb-10">
+      <div className="flex flex-wrap justify-center gap-2 mb-10 max-w-4xl mx-auto">
         {categories.map(cat => (
           <button
             key={cat}
             onClick={() => setFilter(cat)}
-            className={`px-4 py-2 rounded-full text-sm font-medium transition ${
+            className={`px-4 py-2 rounded-full text-sm font-bold transition-all ${
               filter === cat 
-                ? 'bg-blue-600 text-white shadow-md' 
-                : 'bg-gray-100 text-gray-600 hover:bg-gray-200'
+                ? 'bg-blue-600 text-white shadow-md scale-105' 
+                : 'bg-white border border-gray-200 text-gray-600 hover:bg-gray-50'
             }`}
           >
             {cat}
@@ -169,17 +192,18 @@ function HomePage() {
       
       {/* Tools Grid */}
       {filteredTools.length === 0 ? (
-        <div className="text-center text-gray-500 py-10">
+        <div className="text-center text-gray-400 py-16 font-medium">
+          <Search className="mx-auto h-12 w-12 mb-4 opacity-20" />
           No tools found matching your search.
         </div>
       ) : (
-        <div className="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-4 gap-4">
+        <div className="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-4 xl:grid-cols-5 gap-4">
           {filteredTools.map(t => (
-            <Link key={t.path} to={t.path} className="p-4 border border-gray-200 rounded-xl hover:border-blue-500 hover:shadow-md transition-all group flex flex-col items-center text-center">
-              <div className="text-blue-600 mb-3 group-hover:scale-110 transition-transform">
+            <Link key={t.path} to={t.path} className="p-4 bg-white border border-gray-200 rounded-2xl hover:border-blue-400 hover:shadow-lg transition-all group flex flex-col items-center text-center">
+              <div className="text-blue-500 mb-3 group-hover:scale-110 transition-transform bg-blue-50 p-3 rounded-full">
                 {t.icon}
               </div>
-              <h4 className="font-semibold text-gray-800 text-sm">{t.name}</h4>
+              <h4 className="font-bold text-gray-800 text-sm leading-tight">{t.name}</h4>
             </Link>
           ))}
         </div>
@@ -191,21 +215,20 @@ function HomePage() {
 export default function App() {
   return (
     <Router>
-      <div className="min-h-screen flex flex-col font-sans bg-gray-100">
+      <div className="min-h-screen flex flex-col font-sans bg-gray-50">
         
         {/* Header */}
-        <header className="bg-white border-b border-gray-200 h-16 flex items-center justify-between px-6 sticky top-0 z-50">
+        <header className="bg-white border-b border-gray-200 h-16 flex items-center justify-between px-6 sticky top-0 z-50 shadow-sm">
           <Link to="/" className="flex items-center gap-2 text-blue-600 hover:opacity-80">
             <LayoutGrid size={24} />
-            <h1 className="text-xl font-bold text-gray-800">WebTools<span className="text-blue-600">Pro</span></h1>
+            <h1 className="text-xl font-black text-gray-800 tracking-tight">WebTools<span className="text-blue-600">Pro</span></h1>
           </Link>
           
           <MobileMenu />
 
-          {/* Desktop Nav - Just a few top ones so it fits */}
           <nav className="hidden md:flex gap-4 overflow-x-auto items-center pr-2">
-            {TOOLS.slice(0, 6).map(t => (
-              <Link key={t.path} to={t.path} className="flex items-center gap-1.5 text-sm font-medium text-gray-600 hover:text-blue-600 whitespace-nowrap">
+            {TOOLS.slice(0, 5).map(t => (
+              <Link key={t.path} to={t.path} className="flex items-center gap-1.5 text-sm font-bold text-gray-600 hover:text-blue-600 whitespace-nowrap">
                 <span className="scale-75">{t.icon}</span> {t.name}
               </Link>
             ))}
@@ -213,23 +236,23 @@ export default function App() {
         </header>
 
         {/* Ad Layout */}
-        <main className="flex-1 flex flex-col md:flex-row w-full max-w-[1600px] mx-auto p-4 gap-6">
+        <main className="flex-1 flex flex-col md:flex-row w-full max-w-[1800px] mx-auto p-4 md:p-6 gap-6">
           
-          <aside className="hidden md:flex flex-col w-[250px] shrink-0 gap-4">
-            <div className="w-full h-[600px] bg-white rounded-xl border border-gray-200 overflow-hidden relative shadow-sm sticky top-24">
+          <aside className="hidden md:flex flex-col w-[200px] lg:w-[250px] shrink-0 gap-4">
+            <div className="w-full h-[600px] bg-white rounded-2xl border border-gray-200 overflow-hidden relative shadow-sm sticky top-24">
               <AdBanner slot="left-1" format="vertical" />
             </div>
           </aside>
 
-          <div className="flex-1 bg-white rounded-2xl shadow-sm border border-gray-200 min-h-[600px] p-6 relative">
+          <div className="flex-1">
             <Routes>
               <Route path="/" element={<HomePage />} />
               {TOOLS.map(t => <Route key={t.path} path={t.path} element={t.elem} />)}
             </Routes>
           </div>
 
-          <aside className="hidden md:flex flex-col w-[250px] shrink-0 gap-4">
-            <div className="w-full h-[600px] bg-white rounded-xl border border-gray-200 overflow-hidden relative shadow-sm sticky top-24">
+          <aside className="hidden md:flex flex-col w-[200px] lg:w-[250px] shrink-0 gap-4">
+            <div className="w-full h-[600px] bg-white rounded-2xl border border-gray-200 overflow-hidden relative shadow-sm sticky top-24">
               <AdBanner slot="right-1" format="vertical" />
             </div>
           </aside>
