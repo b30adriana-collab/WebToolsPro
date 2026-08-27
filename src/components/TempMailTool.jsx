@@ -1,14 +1,12 @@
 ﻿import { useState, useEffect } from 'react';
-import { Mail, Copy, RefreshCcw, Trash2 } from 'lucide-react';
+import { Mail, Copy, RefreshCcw, Trash2, AlertCircle } from 'lucide-react';
 
 export default function TempMailTool() {
   const [email, setEmail] = useState('');
   const [messages, setMessages] = useState([]);
   const [loading, setLoading] = useState(false);
   const [viewMessage, setViewMessage] = useState(null);
-
-  // Free CORS proxy to bypass browser restrictions
-  const corsProxy = 'https://corsproxy.io/?';
+  const [errorMsg, setErrorMsg] = useState('');
 
   useEffect(() => {
     generateEmail();
@@ -16,15 +14,17 @@ export default function TempMailTool() {
 
   const generateEmail = async () => {
     setLoading(true);
+    setErrorMsg('');
     try {
-      const targetUrl = 'https://www.1secmail.com/api/v1/?action=genRandomMailbox&count=1';
-      const res = await fetch(corsProxy + encodeURIComponent(targetUrl));
+      const res = await fetch('/api/mail?action=genRandomMailbox');
+      if (!res.ok) throw new Error("Server proxy error");
       const data = await res.json();
       setEmail(data[0]);
       setMessages([]);
       setViewMessage(null);
     } catch (e) {
-      console.error('Failed to generate mail:', e);
+      console.error(e);
+      setErrorMsg('Nu s-a putut genera un email nou. Încearcă din nou.');
     }
     setLoading(false);
   };
@@ -32,28 +32,32 @@ export default function TempMailTool() {
   const checkInbox = async () => {
     if (!email) return;
     setLoading(true);
+    setErrorMsg('');
     const [login, domain] = email.split('@');
     try {
-      const targetUrl = `https://www.1secmail.com/api/v1/?action=getMessages&login=${login}&domain=${domain}`;
-      const res = await fetch(corsProxy + encodeURIComponent(targetUrl));
+      const res = await fetch(`/api/mail?action=getMessages&login=${login}&domain=${domain}`);
+      if (!res.ok) throw new Error("Server proxy error");
       const data = await res.json();
       setMessages(data);
     } catch (e) {
-      console.error('Failed to check inbox:', e);
+      console.error(e);
+      setErrorMsg('Nu s-a putut verifica inbox-ul.');
     }
     setLoading(false);
   };
 
   const readMessage = async (id) => {
     setLoading(true);
+    setErrorMsg('');
     const [login, domain] = email.split('@');
     try {
-      const targetUrl = `https://www.1secmail.com/api/v1/?action=readMessage&login=${login}&domain=${domain}&id=${id}`;
-      const res = await fetch(corsProxy + encodeURIComponent(targetUrl));
+      const res = await fetch(`/api/mail?action=readMessage&login=${login}&domain=${domain}&id=${id}`);
+      if (!res.ok) throw new Error("Server proxy error");
       const data = await res.json();
       setViewMessage(data);
     } catch (e) {
-      console.error('Failed to read message:', e);
+      console.error(e);
+      setErrorMsg('Nu s-a putut citi mesajul.');
     }
     setLoading(false);
   };
@@ -63,6 +67,14 @@ export default function TempMailTool() {
       <h2 className="text-2xl font-bold mb-2 text-gray-800 text-center">Temp Mail Generator</h2>
       <p className="text-gray-500 mb-8 text-center">Receive emails instantly. Perfect for avoiding spam.</p>
 
+      {/* Error Feedback */}
+      {errorMsg && (
+        <div className="mb-4 bg-red-50 border border-red-200 text-red-700 p-4 rounded-xl flex items-center gap-3">
+          <AlertCircle size={20} />
+          <span className="font-medium">{errorMsg}</span>
+        </div>
+      )}
+
       {/* Address Bar */}
       <div className="bg-blue-50 border border-blue-200 p-6 rounded-xl flex flex-col md:flex-row items-center gap-4 justify-between mb-8">
         <div className="flex items-center gap-3 w-full">
@@ -70,8 +82,9 @@ export default function TempMailTool() {
           <input 
             type="text" 
             readOnly 
-            value={email || 'Generating...'} 
-            className="w-full bg-white border border-blue-200 rounded-lg p-3 font-mono text-lg text-gray-800 outline-none"
+            value={loading && !email ? 'Generare în curs...' : email} 
+            className="w-full bg-white border border-blue-200 rounded-lg p-3 font-mono text-lg text-gray-800 outline-none placeholder-gray-400"
+            placeholder="Se generează email-ul..."
           />
         </div>
         <div className="flex gap-2 shrink-0">
@@ -79,7 +92,7 @@ export default function TempMailTool() {
             <Copy size={20} /> Copy
           </button>
           <button onClick={generateEmail} className="bg-gray-800 hover:bg-gray-900 text-white p-3 rounded-lg font-bold transition">
-            <Trash2 size={20} />
+            <RefreshCcw size={20} className={loading && !email ? 'animate-spin' : ''} />
           </button>
         </div>
       </div>
@@ -89,12 +102,16 @@ export default function TempMailTool() {
         <div className="bg-gray-50 p-4 border-b border-gray-200 flex justify-between items-center">
           <h3 className="font-bold text-gray-700">Inbox ({messages.length})</h3>
           <button onClick={checkInbox} disabled={loading} className="text-blue-600 hover:text-blue-800 flex items-center gap-2 text-sm font-bold">
-            <RefreshCcw size={16} className={loading ? 'animate-spin' : ''} /> Refresh
+            <RefreshCcw size={16} className={loading && email ? 'animate-spin' : ''} /> Refresh
           </button>
         </div>
         
         <div className="divide-y divide-gray-100 min-h-[200px]">
-          {messages.length === 0 ? (
+          {loading && messages.length === 0 ? (
+            <div className="p-8 text-center text-gray-500 font-medium flex justify-center items-center gap-2">
+              <RefreshCcw size={18} className="animate-spin text-blue-500" /> Se încarcă...
+            </div>
+          ) : messages.length === 0 ? (
             <div className="p-8 text-center text-gray-400 font-medium">
               Waiting for incoming emails... (Click Refresh)
             </div>
@@ -123,7 +140,7 @@ export default function TempMailTool() {
             <button onClick={() => setViewMessage(null)} className="text-gray-400 hover:text-gray-600 font-bold text-sm">Close</button>
           </div>
           <div className="p-6 text-gray-700 whitespace-pre-wrap">
-            {viewMessage.textBody || "Message is empty."}
+            {viewMessage.textBody || "Mesajul este gol."}
           </div>
         </div>
       )}
