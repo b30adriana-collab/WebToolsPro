@@ -12,174 +12,354 @@ const ToolLayout = ({ title, desc, children }) => (
 );
 
 const CopyBtn = ({ text }) => (
-  <button onClick={() => navigator.clipboard.writeText(text)} className="mt-2 bg-gray-100 hover:bg-gray-200 text-gray-700 px-4 py-2 rounded-lg text-sm font-bold flex items-center gap-2 justify-center transition">
+  <button onClick={() => navigator.clipboard.writeText(text)} className="bg-gray-100 hover:bg-gray-200 text-gray-700 px-4 py-2 rounded-lg text-sm font-bold flex items-center gap-2 justify-center transition">
     <Copy size={16}/> Copy Result
   </button>
 );
 
-// 1. Slug Generator
-export function SlugGenerator() {
-  const [txt, setTxt] = useState('');
-  const res = txt.toLowerCase().replace(/[^a-z0-9]+/g, '-').replace(/(^-|-$)/g, '');
-  return <ToolLayout title="URL Slug Generator" desc="Convert any text into a clean, URL-friendly slug."><input type="text" placeholder="Enter text..." value={txt} onChange={e=>setTxt(e.target.value)} className="p-3 border rounded-lg w-full outline-none focus:border-blue-500"/><div className="p-4 bg-gray-50 border rounded-lg font-mono break-all min-h-[50px]">{res}</div><CopyBtn text={res}/></ToolLayout>;
-}
+const GenerateBtn = ({ onClick }) => (
+  <button onClick={onClick} className="w-full bg-blue-600 hover:bg-blue-700 text-white font-black py-4 rounded-xl shadow-md transition-all mt-4 hover:scale-[1.02]">
+    GENERATE / CALCULATE
+  </button>
+);
 
-// 2. Case Converter
-export function CaseConverter() {
-  const [txt, setTxt] = useState('');
-  return <ToolLayout title="Case Converter" desc="Easily switch text between different letter cases.">
-    <textarea rows="4" value={txt} onChange={e=>setTxt(e.target.value)} className="p-3 border rounded-lg w-full outline-none focus:border-blue-500" placeholder="Enter text..."/>
-    <div className="grid grid-cols-2 gap-2">
-      <button onClick={() => setTxt(txt.toUpperCase())} className="bg-blue-50 p-2 rounded text-blue-700 font-bold hover:bg-blue-100">UPPERCASE</button>
-      <button onClick={() => setTxt(txt.toLowerCase())} className="bg-blue-50 p-2 rounded text-blue-700 font-bold hover:bg-blue-100">lowercase</button>
-      <button onClick={() => setTxt(txt.toLowerCase().replace(/\b\w/g, c => c.toUpperCase()))} className="bg-blue-50 p-2 rounded text-blue-700 font-bold hover:bg-blue-100">Title Case</button>
-      <button onClick={() => setTxt(txt.replace(/(?:^\w|[A-Z]|\b\w)/g, (w,i) => i===0?w.toLowerCase():w.toUpperCase()).replace(/\s+/g,''))} className="bg-blue-50 p-2 rounded text-blue-700 font-bold hover:bg-blue-100">camelCase</button>
+const ResultBox = ({ result }) => (
+  <div className="mt-4">
+    <h3 className="text-xs font-bold text-gray-400 uppercase mb-2 text-center">Result</h3>
+    <div className="p-4 bg-gray-50 border border-gray-200 rounded-xl font-bold text-xl text-blue-600 break-all whitespace-pre-wrap text-center min-h-[80px] flex items-center justify-center shadow-inner">
+      {result}
     </div>
-  </ToolLayout>;
+  </div>
+);
+
+export function SlugGenerator() {
+  const [text, setText] = useState('');
+  const [res, setRes] = useState('-');
+  const handle = () => setRes(text.toLowerCase().replace(/[^\w\s-]/g, '').replace(/[\s_-]+/g, '-').replace(/^-+|-+$/g, ''));
+  return (
+    <ToolLayout title="Slug Generator" desc="Convert text into a URL-friendly slug.">
+      <input className="p-3 border rounded-lg w-full" value={text} onChange={e=>setText(e.target.value)} placeholder="Enter title here..." />
+      <GenerateBtn onClick={handle} />
+      <ResultBox result={res} />
+      <CopyBtn text={res} />
+    </ToolLayout>
+  );
 }
 
-// 3. Reverse Text
+export function CaseConverter() {
+  const [text, setText] = useState('');
+  const [res, setRes] = useState('-');
+  return (
+    <ToolLayout title="Case Converter" desc="Convert text between different cases.">
+      <textarea rows="4" className="p-3 border rounded-lg w-full" value={text} onChange={e=>setText(e.target.value)} placeholder="Enter text..." />
+      <div className="grid grid-cols-2 gap-2 mt-2">
+        <button className="bg-blue-600 text-white p-2 rounded font-bold" onClick={()=>setRes(text.toUpperCase())}>UPPERCASE</button>
+        <button className="bg-blue-600 text-white p-2 rounded font-bold" onClick={()=>setRes(text.toLowerCase())}>lowercase</button>
+        <button className="bg-blue-600 text-white p-2 rounded font-bold" onClick={()=>setRes(text.split(' ').map(w=>w.charAt(0).toUpperCase()+w.slice(1).toLowerCase()).join(' '))}>Title Case</button>
+        <button className="bg-blue-600 text-white p-2 rounded font-bold" onClick={()=>setRes(text.charAt(0).toUpperCase()+text.slice(1).toLowerCase())}>Sentence case</button>
+      </div>
+      <ResultBox result={res} />
+      <CopyBtn text={res} />
+    </ToolLayout>
+  );
+}
+
 export function ReverseText() {
-  const [txt, setTxt] = useState('');
-  const res = txt.split('').reverse().join('');
-  return <ToolLayout title="Reverse Text" desc="Flips your text completely backwards."><textarea rows="3" value={txt} onChange={e=>setTxt(e.target.value)} className="p-3 border rounded-lg w-full outline-none" placeholder="Enter text..."/><div className="p-4 bg-gray-50 border rounded-lg break-all min-h-[50px]">{res}</div><CopyBtn text={res}/></ToolLayout>;
+  const [text, setText] = useState('');
+  const [res, setRes] = useState('-');
+  const handle = () => setRes(text.split('').reverse().join(''));
+  return (
+    <ToolLayout title="Reverse Text" desc="Reverse a string of text instantly.">
+      <textarea rows="4" className="p-3 border rounded-lg w-full" value={text} onChange={e=>setText(e.target.value)} placeholder="Text to reverse..." />
+      <GenerateBtn onClick={handle} />
+      <ResultBox result={res} />
+      <CopyBtn text={res} />
+    </ToolLayout>
+  );
 }
 
-// 4. Whitespace Remover
 export function WhitespaceRemover() {
-  const [txt, setTxt] = useState('');
-  const res = txt.replace(/\s+/g, ' ').trim();
-  return <ToolLayout title="Whitespace Remover" desc="Removes double spaces and line breaks."><textarea rows="4" value={txt} onChange={e=>setTxt(e.target.value)} className="p-3 border rounded-lg w-full outline-none" placeholder="Enter messy text..."/><div className="p-4 bg-gray-50 border rounded-lg break-all min-h-[80px] whitespace-pre-wrap">{res}</div><CopyBtn text={res}/></ToolLayout>;
+  const [text, setText] = useState('');
+  const [res, setRes] = useState('-');
+  const handle = () => setRes(text.replace(/\s+/g, ' ').trim());
+  return (
+    <ToolLayout title="Whitespace Remover" desc="Remove extra spaces and line breaks.">
+      <textarea rows="4" className="p-3 border rounded-lg w-full" value={text} onChange={e=>setText(e.target.value)} placeholder="Paste text with extra spaces..." />
+      <GenerateBtn onClick={handle} />
+      <ResultBox result={res} />
+      <CopyBtn text={res} />
+    </ToolLayout>
+  );
 }
 
-// 5. HTML Entity Encoder
 export function HtmlEntityEncoder() {
-  const [txt, setTxt] = useState('');
-  const [mode, setMode] = useState('encode');
-  const process = () => {
-    if(mode === 'encode') return txt.replace(/[\u00A0-\u9999<>\&]/g, i => '&#'+i.charCodeAt(0)+';');
-    const txtArea = document.createElement('textarea'); txtArea.innerHTML = txt; return txtArea.value;
-  };
-  return <ToolLayout title="HTML Entity Encoder" desc="Encode or decode HTML tags safely.">
-    <div className="flex gap-2"><button onClick={()=>setMode('encode')} className={`flex-1 p-2 rounded ${mode==='encode'?'bg-blue-600 text-white':'bg-gray-100'}`}>Encode</button><button onClick={()=>setMode('decode')} className={`flex-1 p-2 rounded ${mode==='decode'?'bg-blue-600 text-white':'bg-gray-100'}`}>Decode</button></div>
-    <textarea rows="3" value={txt} onChange={e=>setTxt(e.target.value)} className="p-3 border rounded-lg w-full outline-none font-mono"/><div className="p-4 bg-gray-50 border rounded-lg break-all min-h-[80px] font-mono">{process()}</div><CopyBtn text={process()}/>
-  </ToolLayout>;
+  const [text, setText] = useState('');
+  const [res, setRes] = useState('-');
+  return (
+    <ToolLayout title="HTML Entity Encode/Decode" desc="Encode or decode HTML entities.">
+      <textarea rows="4" className="p-3 border rounded-lg w-full" value={text} onChange={e=>setText(e.target.value)} placeholder="Enter text or HTML..." />
+      <div className="flex gap-2">
+        <button className="flex-1 bg-blue-600 text-white p-3 rounded-lg font-bold" onClick={() => {
+          let t = document.createElement("textarea"); t.innerText = text; setRes(t.innerHTML);
+        }}>Encode</button>
+        <button className="flex-1 bg-purple-600 text-white p-3 rounded-lg font-bold" onClick={() => {
+          let t = document.createElement("textarea"); t.innerHTML = text; setRes(t.value);
+        }}>Decode</button>
+      </div>
+      <ResultBox result={res} />
+      <CopyBtn text={res} />
+    </ToolLayout>
+  );
 }
 
-// 6. Binary Converter
 export function BinaryConverter() {
-  const [txt, setTxt] = useState('');
-  const [mode, setMode] = useState('text2bin');
-  const process = () => {
-    try {
-      if(mode==='text2bin') return txt.split('').map(c => c.charCodeAt(0).toString(2).padStart(8,'0')).join(' ');
-      return txt.split(' ').map(b => String.fromCharCode(parseInt(b, 2))).join('');
-    } catch(e) { return 'Invalid Input'; }
-  };
-  return <ToolLayout title="Binary Converter" desc="Convert text to binary code (0101) and back."><div className="flex gap-2"><button onClick={()=>setMode('text2bin')} className={`flex-1 p-2 rounded ${mode==='text2bin'?'bg-blue-600 text-white':'bg-gray-100'}`}>Text to Bin</button><button onClick={()=>setMode('bin2text')} className={`flex-1 p-2 rounded ${mode==='bin2text'?'bg-blue-600 text-white':'bg-gray-100'}`}>Bin to Text</button></div><textarea rows="3" value={txt} onChange={e=>setTxt(e.target.value)} className="p-3 border rounded-lg w-full outline-none"/><div className="p-4 bg-gray-50 border rounded-lg break-all min-h-[80px] font-mono">{process()}</div><CopyBtn text={process()}/></ToolLayout>;
+  const [text, setText] = useState('');
+  const [res, setRes] = useState('-');
+  return (
+    <ToolLayout title="Text to Binary" desc="Convert text to binary and vice versa.">
+      <textarea rows="4" className="p-3 border rounded-lg w-full" value={text} onChange={e=>setText(e.target.value)} placeholder="Text or binary..." />
+      <div className="flex gap-2">
+        <button className="flex-1 bg-blue-600 text-white p-3 rounded-lg font-bold" onClick={() => setRes(text.split('').map(c=>c.charCodeAt(0).toString(2).padStart(8,'0')).join(' '))}>Text to Binary</button>
+        <button className="flex-1 bg-purple-600 text-white p-3 rounded-lg font-bold" onClick={() => setRes(text.split(' ').map(b=>String.fromCharCode(parseInt(b,2))).join(''))}>Binary to Text</button>
+      </div>
+      <ResultBox result={res} />
+      <CopyBtn text={res} />
+    </ToolLayout>
+  );
 }
 
-// 7. Morse Converter (simplified dict)
-const morseDict = {'A':'.-','B':'-...','C':'-.-.','D':'-..','E':'.','F':'..-.','G':'--.','H':'....','I':'..','J':'.---','K':'-.-','L':'.-..','M':'--','N':'-.','O':'---','P':'.--.','Q':'--.-','R':'.-.','S':'...','T':'-','U':'..-','V':'...-','W':'.--','X':'-..-','Y':'-.--','Z':'--..','1':'.----','2':'..---','3':'...--','4':'....-','5':'.....','6':'-....','7':'--...','8':'---..','9':'----.','0':'-----',' ':'/'};
 export function MorseConverter() {
-  const [txt, setTxt] = useState('');
-  const process = () => txt.toUpperCase().split('').map(c => morseDict[c] || c).join(' ');
-  return <ToolLayout title="Morse Code Translator" desc="Translate your text into Morse code."><textarea rows="3" value={txt} onChange={e=>setTxt(e.target.value)} className="p-3 border rounded-lg w-full outline-none"/><div className="p-4 bg-gray-50 border rounded-lg break-all min-h-[80px] font-mono tracking-widest">{process()}</div><CopyBtn text={process()}/></ToolLayout>;
+  const [text, setText] = useState('');
+  const [res, setRes] = useState('-');
+  const dict = {'a':'.-','b':'-...','c':'-.-.','d':'-..','e':'.','f':'..-.','g':'--.','h':'....','i':'..','j':'.---','k':'-.-','l':'.-..','m':'--','n':'-.','o':'---','p':'.--.','q':'--.-','r':'.-.','s':'...','t':'-','u':'..-','v':'...-','w':'.--','x':'-..-','y':'-.--','z':'--..','1':'.----','2':'..---','3':'...--','4':'....-','5':'.....','6':'-....','7':'--...','8':'---..','9':'----.','0':'-----',' ':'/'};
+  const handle = () => setRes(text.toLowerCase().split('').map(c=>dict[c]||'').join(' '));
+  return (
+    <ToolLayout title="Morse Code" desc="Convert text to Morse code.">
+      <textarea rows="4" className="p-3 border rounded-lg w-full" value={text} onChange={e=>setText(e.target.value)} placeholder="Enter text..." />
+      <GenerateBtn onClick={handle} />
+      <ResultBox result={res} />
+      <CopyBtn text={res} />
+    </ToolLayout>
+  );
 }
 
-// 8. Random Generator
 export function RandomGenerator() {
-  const [min, setMin] = useState(1); const [max, setMax] = useState(100); const [res, setRes] = useState('-');
-  const generate = () => setRes(Math.floor(Math.random() * (max - min + 1)) + min);
-  return <ToolLayout title="Random Number Generator" desc="Pick a completely random number between limits."><div className="flex gap-4"><input type="number" value={min} onChange={e=>setMin(+e.target.value)} className="p-3 border rounded-lg w-full" placeholder="Min"/><input type="number" value={max} onChange={e=>setMax(+e.target.value)} className="p-3 border rounded-lg w-full" placeholder="Max"/></div><button onClick={generate} className="bg-blue-600 text-white font-bold p-3 rounded-lg">Generate</button><div className="text-6xl font-bold text-center text-blue-600 py-4">{res}</div></ToolLayout>;
+  const [min, setMin] = useState(1);
+  const [max, setMax] = useState(100);
+  const [res, setRes] = useState('-');
+  const handle = () => setRes(Math.floor(Math.random()*(max-min+1))+min);
+  return (
+    <ToolLayout title="Random Number" desc="Generate a random number between min and max.">
+      <div className="flex gap-4">
+        <input type="number" className="p-3 border rounded-lg w-full" value={min} onChange={e=>setMin(+e.target.value)} placeholder="Min" />
+        <input type="number" className="p-3 border rounded-lg w-full" value={max} onChange={e=>setMax(+e.target.value)} placeholder="Max" />
+      </div>
+      <GenerateBtn onClick={handle} />
+      <ResultBox result={res} />
+    </ToolLayout>
+  );
 }
 
-// 9. UUID Generator
 export function UuidGenerator() {
-  const [uuid, setUuid] = useState('');
-  const gen = () => setUuid(crypto.randomUUID ? crypto.randomUUID() : 'Requires secure context');
-  useEffect(gen, []);
-  return <ToolLayout title="UUID / GUID Generator" desc="Generate secure random version 4 UUIDs."><div className="text-2xl font-mono text-center p-6 bg-gray-50 border rounded-lg break-all">{uuid}</div><button onClick={gen} className="bg-blue-600 text-white font-bold p-3 rounded-lg">Generate New</button><CopyBtn text={uuid}/></ToolLayout>;
+  const [res, setRes] = useState('-');
+  const handle = () => setRes(crypto.randomUUID());
+  return (
+    <ToolLayout title="UUID Generator" desc="Generate a secure random UUID v4.">
+      <GenerateBtn onClick={handle} />
+      <ResultBox result={res} />
+      <CopyBtn text={res} />
+    </ToolLayout>
+  );
 }
 
-// 10. SHA-256 Hash
+export async function hashText(text) {
+  const msgUint8 = new TextEncoder().encode(text);
+  const hashBuffer = await crypto.subtle.digest('SHA-256', msgUint8);
+  const hashArray = Array.from(new Uint8Array(hashBuffer));
+  return hashArray.map((b) => b.toString(16).padStart(2, '0')).join('');
+}
+
 export function Sha256Generator() {
-  const [txt, setTxt] = useState(''); const [hash, setHash] = useState('');
-  useEffect(() => {
-    if(!txt) return setHash('');
-    crypto.subtle.digest('SHA-256', new TextEncoder().encode(txt)).then(h => setHash(Array.from(new Uint8Array(h)).map(b => b.toString(16).padStart(2, '0')).join('')));
-  }, [txt]);
-  return <ToolLayout title="SHA-256 Hash Generator" desc="Generate cryptographic SHA-256 hashes instantly in-browser."><input type="text" value={txt} onChange={e=>setTxt(e.target.value)} className="p-3 border rounded-lg w-full outline-none" placeholder="Enter text to hash..."/><div className="p-4 bg-gray-50 border rounded-lg font-mono break-all min-h-[50px]">{hash}</div><CopyBtn text={hash}/></ToolLayout>;
+  const [text, setText] = useState('');
+  const [res, setRes] = useState('-');
+  const handle = async () => setRes(await hashText(text));
+  return (
+    <ToolLayout title="SHA-256 Hash" desc="Create a SHA-256 hash from text.">
+      <textarea rows="4" className="p-3 border rounded-lg w-full" value={text} onChange={e=>setText(e.target.value)} placeholder="Text to hash..." />
+      <GenerateBtn onClick={handle} />
+      <ResultBox result={res} />
+      <CopyBtn text={res} />
+    </ToolLayout>
+  );
 }
 
-// 11. Luhn Validator
 export function LuhnValidator() {
-  const [txt, setTxt] = useState('');
-  const isValid = (num) => {
-    let arr = (num+'').replace(/\D/g,'').split('').reverse().map(x => parseInt(x));
-    let last = arr.splice(0,1)[0];
-    let sum = arr.reduce((acc, val, i) => i%2!==0 ? acc+val : acc+((val*2)%9||9), 0);
-    return sum > 0 && (sum + last) % 10 === 0;
+  const [text, setText] = useState('');
+  const [res, setRes] = useState('-');
+  const handle = () => {
+    let sum = 0; let alt = false;
+    for(let i=text.length-1; i>=0; i--) {
+      let n = parseInt(text.charAt(i), 10);
+      if(alt) { n*=2; if(n>9) n-=9; }
+      sum+=n; alt=!alt;
+    }
+    setRes(sum%10===0 ? '✅ Valid' : '❌ Invalid');
   };
-  const v = isValid(txt);
-  return <ToolLayout title="Credit Card Validator (Luhn)" desc="Checks if a credit card number is mathematically valid (No data is saved)."><input type="text" value={txt} onChange={e=>setTxt(e.target.value)} className="p-3 border rounded-lg w-full outline-none" placeholder="Enter card number..."/><div className={`p-4 font-bold text-center rounded-lg ${!txt ? 'bg-gray-100 text-gray-500' : v ? 'bg-green-100 text-green-700' : 'bg-red-100 text-red-700'}`}>{!txt ? 'Waiting...' : v ? 'Valid Card Number' : 'Invalid Card Number'}</div></ToolLayout>;
+  return (
+    <ToolLayout title="Luhn / Credit Card Check" desc="Validate a credit card number using the Luhn algorithm.">
+      <input className="p-3 border rounded-lg w-full" value={text} onChange={e=>setText(e.target.value.replace(/\D/g,''))} placeholder="Card number..." />
+      <GenerateBtn onClick={handle} />
+      <ResultBox result={res} />
+    </ToolLayout>
+  );
 }
 
-// 12. Percentage Calc
 export function PercentageCalc() {
-  const [p, setP] = useState(20); const [v, setV] = useState(150);
-  return <ToolLayout title="Percentage Calculator" desc="Calculate what X% of Y is."><div className="flex items-center gap-4"><input type="number" value={p} onChange={e=>setP(+e.target.value)} className="p-3 border rounded-lg w-24 text-center"/><span className="font-bold">% of</span><input type="number" value={v} onChange={e=>setV(+e.target.value)} className="p-3 border rounded-lg flex-1"/></div><div className="text-4xl font-bold text-center text-blue-600 py-4">{(p/100*v) || 0}</div></ToolLayout>;
+  const [a, setA] = useState(0);
+  const [b, setB] = useState(0);
+  const [res, setRes] = useState('-');
+  const handle = () => setRes(`${a}% of ${b} = ${(a/100)*b}`);
+  return (
+    <ToolLayout title="Percentage Calculator" desc="What is X% of Y?">
+      <div className="flex gap-4">
+        <input type="number" className="p-3 border rounded-lg w-full" value={a} onChange={e=>setA(+e.target.value)} placeholder="%" />
+        <input type="number" className="p-3 border rounded-lg w-full" value={b} onChange={e=>setB(+e.target.value)} placeholder="Value" />
+      </div>
+      <GenerateBtn onClick={handle} />
+      <ResultBox result={res} />
+    </ToolLayout>
+  );
 }
 
-// 13. Discount Calc
 export function DiscountCalc() {
-  const [price, setPrice] = useState(100); const [disc, setDisc] = useState(15);
-  const save = (price * (disc/100)).toFixed(2); const final = (price - save).toFixed(2);
-  return <ToolLayout title="Discount Calculator" desc="Find out exactly how much you pay on sale."><div className="flex gap-4"><div className="flex-1"><label className="text-xs font-bold text-gray-500">Original Price</label><input type="number" value={price} onChange={e=>setPrice(+e.target.value)} className="p-3 border rounded-lg w-full"/></div><div className="flex-1"><label className="text-xs font-bold text-gray-500">Discount %</label><input type="number" value={disc} onChange={e=>setDisc(+e.target.value)} className="p-3 border rounded-lg w-full"/></div></div><div className="p-4 bg-gray-50 rounded-lg flex justify-between items-center"><div className="text-gray-600">You Save: <span className="font-bold text-green-600">{save}</span></div><div className="text-xl">Final: <span className="font-bold text-blue-600">{final}</span></div></div></ToolLayout>;
+  const [price, setPrice] = useState(100);
+  const [discount, setDiscount] = useState(20);
+  const [res, setRes] = useState('-');
+  const handle = () => {
+    const save = price*(discount/100);
+    setRes(`Final Price: $${(price-save).toFixed(2)}\nYou save: $${save.toFixed(2)}`);
+  };
+  return (
+    <ToolLayout title="Discount Calculator" desc="Calculate final price after discount.">
+      <div className="flex gap-4">
+        <input type="number" className="p-3 border rounded-lg w-full" value={price} onChange={e=>setPrice(+e.target.value)} placeholder="Original Price" />
+        <input type="number" className="p-3 border rounded-lg w-full" value={discount} onChange={e=>setDiscount(+e.target.value)} placeholder="Discount %" />
+      </div>
+      <GenerateBtn onClick={handle} />
+      <ResultBox result={res} />
+    </ToolLayout>
+  );
 }
 
-// 14. Tip Calc
 export function TipCalc() {
-  const [bill, setBill] = useState(50); const [tip, setTip] = useState(15); const [split, setSplit] = useState(1);
-  const total = bill * (1 + tip/100); const perPerson = total / split;
-  return <ToolLayout title="Tip & Split Calculator" desc="Calculate tip and split the bill among friends."><div className="grid grid-cols-3 gap-2"><div className="col-span-3 md:col-span-1"><label className="text-xs font-bold text-gray-500">Bill</label><input type="number" value={bill} onChange={e=>setBill(+e.target.value)} className="p-3 border rounded-lg w-full"/></div><div><label className="text-xs font-bold text-gray-500">Tip %</label><input type="number" value={tip} onChange={e=>setTip(+e.target.value)} className="p-3 border rounded-lg w-full"/></div><div><label className="text-xs font-bold text-gray-500">People</label><input type="number" value={split} onChange={e=>setSplit(Math.max(1,+e.target.value))} className="p-3 border rounded-lg w-full"/></div></div><div className="p-4 bg-gray-50 rounded-lg text-center mt-2 text-2xl font-bold text-blue-600">Total: {total.toFixed(2)} <span className="text-sm text-gray-400 block">({perPerson.toFixed(2)} each)</span></div></ToolLayout>;
+  const [bill, setBill] = useState(50);
+  const [tip, setTip] = useState(15);
+  const [split, setSplit] = useState(1);
+  const [res, setRes] = useState('-');
+  const handle = () => {
+    const total = bill * (1 + tip/100);
+    setRes(`Total: $${total.toFixed(2)}\nPer Person: $${(total/split).toFixed(2)}`);
+  };
+  return (
+    <ToolLayout title="Tip Calculator" desc="Calculate tip and split the bill.">
+      <div className="flex gap-2">
+        <input type="number" className="p-3 border rounded-lg w-full" value={bill} onChange={e=>setBill(+e.target.value)} placeholder="Bill Amount" />
+        <input type="number" className="p-3 border rounded-lg w-full" value={tip} onChange={e=>setTip(+e.target.value)} placeholder="Tip %" />
+        <input type="number" className="p-3 border rounded-lg w-full" value={split} onChange={e=>setSplit(+e.target.value)} placeholder="People" min="1" />
+      </div>
+      <GenerateBtn onClick={handle} />
+      <ResultBox result={res} />
+    </ToolLayout>
+  );
 }
 
-// 15. BMI Calc
 export function BmiCalc() {
-  const [w, setW] = useState(70); const [h, setH] = useState(175);
-  const bmi = (w / Math.pow(h/100, 2)).toFixed(1);
-  return <ToolLayout title="BMI Calculator" desc="Calculate your Body Mass Index (Metric)."><div className="flex gap-4"><div className="flex-1"><label className="text-xs font-bold text-gray-500">Weight (kg)</label><input type="number" value={w} onChange={e=>setW(+e.target.value)} className="p-3 border rounded-lg w-full"/></div><div className="flex-1"><label className="text-xs font-bold text-gray-500">Height (cm)</label><input type="number" value={h} onChange={e=>setH(+e.target.value)} className="p-3 border rounded-lg w-full"/></div></div><div className="text-4xl font-bold text-center text-blue-600 py-4">BMI: {bmi}</div></ToolLayout>;
+  const [w, setW] = useState(70);
+  const [h, setH] = useState(175);
+  const [res, setRes] = useState('-');
+  const handle = () => {
+    const bmi = w / ((h/100)**2);
+    let cat = bmi<18.5?'Underweight':bmi<25?'Normal':bmi<30?'Overweight':'Obese';
+    setRes(`BMI: ${bmi.toFixed(1)} (${cat})`);
+  };
+  return (
+    <ToolLayout title="BMI Calculator" desc="Calculate Body Mass Index.">
+      <div className="flex gap-4">
+        <input type="number" className="p-3 border rounded-lg w-full" value={w} onChange={e=>setW(+e.target.value)} placeholder="Weight (kg)" />
+        <input type="number" className="p-3 border rounded-lg w-full" value={h} onChange={e=>setH(+e.target.value)} placeholder="Height (cm)" />
+      </div>
+      <GenerateBtn onClick={handle} />
+      <ResultBox result={res} />
+    </ToolLayout>
+  );
 }
 
-// 16. Temp Converter
 export function TempConverter() {
   const [c, setC] = useState(0);
-  return <ToolLayout title="Temperature Converter" desc="Convert Celsius to Fahrenheit instantly."><div className="flex items-center gap-4"><div className="flex-1 text-center"><label className="text-xs font-bold text-gray-500">Celsius °C</label><input type="number" value={c} onChange={e=>setC(+e.target.value)} className="p-3 border rounded-lg w-full text-center text-xl font-bold"/></div><span className="text-2xl text-gray-400">=</span><div className="flex-1 text-center"><label className="text-xs font-bold text-gray-500">Fahrenheit °F</label><div className="p-3 bg-gray-50 border rounded-lg w-full text-xl font-bold text-blue-600">{(c * 9/5 + 32).toFixed(1)}</div></div></div></ToolLayout>;
+  const [res, setRes] = useState('-');
+  const handle = () => setRes(`${c}°C = ${(c*9/5+32).toFixed(2)}°F\n${c}°C = ${(c+273.15).toFixed(2)}K`);
+  return (
+    <ToolLayout title="Temperature Converter" desc="Convert Celsius to Fahrenheit and Kelvin.">
+      <input type="number" className="p-3 border rounded-lg w-full" value={c} onChange={e=>setC(+e.target.value)} placeholder="Celsius" />
+      <GenerateBtn onClick={handle} />
+      <ResultBox result={res} />
+    </ToolLayout>
+  );
 }
 
-// 17. Length Converter
 export function LengthConverter() {
   const [m, setM] = useState(1);
-  return <ToolLayout title="Length Converter" desc="Meters to Feet & Inches."><div className="flex items-center gap-4"><div className="flex-1 text-center"><label className="text-xs font-bold text-gray-500">Meters</label><input type="number" value={m} onChange={e=>setM(+e.target.value)} className="p-3 border rounded-lg w-full text-center font-bold"/></div><span className="text-xl text-gray-400">=</span><div className="flex-1 text-center"><label className="text-xs font-bold text-gray-500">Feet</label><div className="p-3 bg-gray-50 border rounded-lg w-full font-bold text-blue-600">{(m * 3.28084).toFixed(2)}</div></div></div></ToolLayout>;
+  const [res, setRes] = useState('-');
+  const handle = () => setRes(`${m} meters = ${(m*3.28084).toFixed(2)} feet\n${m} meters = ${(m*39.3701).toFixed(2)} inches\n${m} meters = ${(m/1000).toFixed(4)} km\n${m} meters = ${(m/1609.34).toFixed(4)} miles`);
+  return (
+    <ToolLayout title="Length Converter" desc="Convert meters to other units.">
+      <input type="number" className="p-3 border rounded-lg w-full" value={m} onChange={e=>setM(+e.target.value)} placeholder="Meters" />
+      <GenerateBtn onClick={handle} />
+      <ResultBox result={res} />
+    </ToolLayout>
+  );
 }
 
-// 18. Weight Converter
 export function WeightConverter() {
   const [kg, setKg] = useState(1);
-  return <ToolLayout title="Weight Converter" desc="Kilograms to Pounds."><div className="flex items-center gap-4"><div className="flex-1 text-center"><label className="text-xs font-bold text-gray-500">Kilograms</label><input type="number" value={kg} onChange={e=>setKg(+e.target.value)} className="p-3 border rounded-lg w-full text-center font-bold"/></div><span className="text-xl text-gray-400">=</span><div className="flex-1 text-center"><label className="text-xs font-bold text-gray-500">Pounds (Lbs)</label><div className="p-3 bg-gray-50 border rounded-lg w-full font-bold text-blue-600">{(kg * 2.20462).toFixed(2)}</div></div></div></ToolLayout>;
+  const [res, setRes] = useState('-');
+  const handle = () => setRes(`${kg} kg = ${(kg*2.20462).toFixed(2)} lbs\n${kg} kg = ${(kg*35.274).toFixed(2)} oz`);
+  return (
+    <ToolLayout title="Weight Converter" desc="Convert kilograms to pounds and ounces.">
+      <input type="number" className="p-3 border rounded-lg w-full" value={kg} onChange={e=>setKg(+e.target.value)} placeholder="Kilograms" />
+      <GenerateBtn onClick={handle} />
+      <ResultBox result={res} />
+    </ToolLayout>
+  );
 }
 
-// 19. Stopwatch
 export function Stopwatch() {
-  const [time, setTime] = useState(0); const [run, setRun] = useState(false);
-  useEffect(() => { let int; if(run) int = setInterval(()=>setTime(t=>t+10), 10); return ()=>clearInterval(int); }, [run]);
-  return <ToolLayout title="Stopwatch Timer" desc="A simple browser stopwatch."><div className="text-5xl font-mono text-center py-6 text-blue-600">{("0"+Math.floor((time/60000)%60)).slice(-2)}:{("0"+Math.floor((time/1000)%60)).slice(-2)}:{("0"+((time/10)%100)).slice(-2)}</div><div className="flex gap-2 justify-center"><button onClick={()=>setRun(!run)} className="px-6 py-2 bg-blue-600 text-white rounded font-bold">{run ? 'Pause' : 'Start'}</button><button onClick={()=>{setRun(false); setTime(0)}} className="px-6 py-2 bg-red-100 text-red-600 rounded font-bold">Reset</button></div></ToolLayout>;
+  const [time, setTime] = useState(0);
+  const [on, setOn] = useState(false);
+  useEffect(() => {
+    let int; if(on) int = setInterval(()=>setTime(t=>t+10), 10);
+    return ()=>clearInterval(int);
+  }, [on]);
+  return (
+    <ToolLayout title="Stopwatch" desc="A simple stopwatch.">
+      <div className="text-4xl font-black text-center mb-4 font-mono text-blue-600">
+        {("0"+Math.floor((time/60000)%60)).slice(-2)}:{("0"+Math.floor((time/1000)%60)).slice(-2)}:{("0"+((time/10)%100)).slice(-2)}
+      </div>
+      <div className="flex gap-2">
+        <button className="flex-1 bg-green-600 text-white p-3 rounded font-bold" onClick={()=>setOn(!on)}>{on?'Stop':'Start'}</button>
+        <button className="flex-1 bg-red-600 text-white p-3 rounded font-bold" onClick={()=>{setOn(false);setTime(0);}}>Reset</button>
+      </div>
+    </ToolLayout>
+  );
 }
 
-// 20. Device Resolution
 export function DeviceResolution() {
-  const [res, setRes] = useState({w: window.innerWidth, h: window.innerHeight, p: window.devicePixelRatio});
-  useEffect(() => { const cb = ()=>setRes({w: window.innerWidth, h: window.innerHeight, p: window.devicePixelRatio}); window.addEventListener('resize', cb); return ()=>window.removeEventListener('resize', cb); }, []);
-  return <ToolLayout title="My Screen Resolution" desc="Find out your exact screen width, height, and pixel ratio."><div className="text-4xl font-bold text-center text-blue-600 py-4">{res.w} x {res.h} <span className="text-sm text-gray-400 block mt-2">Pixel Ratio: {res.p}x</span></div></ToolLayout>;
+  const [res, setRes] = useState('-');
+  const handle = () => setRes(`${window.screen.width} x ${window.screen.height}`);
+  return (
+    <ToolLayout title="Device Resolution" desc="Check your screen resolution.">
+      <GenerateBtn onClick={handle} />
+      <ResultBox result={res} />
+    </ToolLayout>
+  );
 }

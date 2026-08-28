@@ -1,68 +1,497 @@
-﻿import { useState, useEffect } from 'react';
+﻿import { useState } from 'react';
 import { Copy } from 'lucide-react';
 
 const ToolLayout = ({ title, desc, children }) => (
-  <div className="max-w-2xl mx-auto py-8"><h2 className="text-2xl font-bold mb-2 text-gray-800 text-center">{title}</h2><p className="text-gray-500 mb-8 text-center">{desc}</p><div className="bg-white p-6 rounded-xl border border-gray-200 shadow-sm flex flex-col gap-4">{children}</div></div>
+  <div className="max-w-2xl mx-auto py-8">
+    <h2 className="text-2xl font-bold mb-2 text-gray-800 text-center">{title}</h2>
+    <p className="text-gray-500 mb-8 text-center">{desc}</p>
+    <div className="bg-white p-6 rounded-xl border border-gray-200 shadow-sm flex flex-col gap-4">
+      {children}
+    </div>
+  </div>
 );
-const CopyBtn = ({ text }) => <button onClick={() => navigator.clipboard.writeText(text)} className="mt-2 bg-gray-100 hover:bg-gray-200 text-gray-700 px-4 py-2 rounded-lg text-sm font-bold flex items-center gap-2 justify-center"><Copy size={16}/> Copy Result</button>;
 
-// 1. Loan Calculator
-export const LoanCalc = () => { const [a, setA]=useState(10000); const [r, setR]=useState(5); const [m, setM]=useState(60); const p = r/100/12; const pay = a*p*Math.pow(1+p,m)/(Math.pow(1+p,m)-1); return <ToolLayout title="Loan Calculator" desc="Calculate monthly payments."><div className="flex gap-2"><input type="number" placeholder="Amount" value={a} onChange={e=>setA(+e.target.value)} className="p-3 border rounded flex-1"/><input type="number" placeholder="Interest %" value={r} onChange={e=>setR(+e.target.value)} className="p-3 border rounded flex-1"/><input type="number" placeholder="Months" value={m} onChange={e=>setM(+e.target.value)} className="p-3 border rounded flex-1"/></div><div className="text-3xl text-blue-600 font-bold text-center mt-4">{(pay||0).toFixed(2)} / mo</div></ToolLayout>; };
-// 2. ROI Calculator
-export const RoiCalc = () => { const [i, setI]=useState(1000); const [r, setR]=useState(1500); const roi = ((r-i)/i)*100; return <ToolLayout title="ROI Calculator" desc="Return on Investment."><div className="flex gap-2"><input type="number" placeholder="Invested" value={i} onChange={e=>setI(+e.target.value)} className="p-3 border rounded flex-1"/><input type="number" placeholder="Returned" value={r} onChange={e=>setR(+e.target.value)} className="p-3 border rounded flex-1"/></div><div className="text-3xl text-blue-600 font-bold text-center mt-4">{(roi||0).toFixed(2)}%</div></ToolLayout>; };
-// 3. Margin Calculator
-export const MarginCalc = () => { const [c, setC]=useState(50); const [r, setR]=useState(100); const m = ((r-c)/r)*100; return <ToolLayout title="Profit Margin Calculator" desc="Calculate margin from cost and revenue."><div className="flex gap-2"><input type="number" placeholder="Cost" value={c} onChange={e=>setC(+e.target.value)} className="p-3 border rounded flex-1"/><input type="number" placeholder="Revenue" value={r} onChange={e=>setR(+e.target.value)} className="p-3 border rounded flex-1"/></div><div className="text-3xl text-blue-600 font-bold text-center mt-4">{(m||0).toFixed(2)}% Margin</div></ToolLayout>; };
-// 4. Salary Calculator
-export const SalaryCalc = () => { const [h, setH]=useState(25); const a = h*40*52; return <ToolLayout title="Salary Calculator" desc="Hourly to Annual."><div className="flex gap-2 items-center"><input type="number" placeholder="Hourly Rate" value={h} onChange={e=>setH(+e.target.value)} className="p-3 border rounded flex-1"/><span>/ hr</span></div><div className="text-3xl text-blue-600 font-bold text-center mt-4">{(a||0).toLocaleString()} / yr</div></ToolLayout>; };
-// 5. Speed Converter
-export const SpeedConv = () => { const [k, setK]=useState(100); return <ToolLayout title="Speed Converter" desc="km/h to mph."><div className="flex gap-2"><input type="number" value={k} onChange={e=>setK(+e.target.value)} className="p-3 border rounded flex-1 text-center"/> <span className="p-3 font-bold">km/h =</span> <div className="p-3 border rounded flex-1 text-center bg-gray-50 text-blue-600 font-bold">{(k*0.621371).toFixed(2)} mph</div></div></ToolLayout>; };
-// 6. Volume Converter
-export const VolConv = () => { const [l, setL]=useState(1); return <ToolLayout title="Volume Converter" desc="Liters to Gallons."><div className="flex gap-2"><input type="number" value={l} onChange={e=>setL(+e.target.value)} className="p-3 border rounded flex-1 text-center"/> <span className="p-3 font-bold">L =</span> <div className="p-3 border rounded flex-1 text-center bg-gray-50 text-blue-600 font-bold">{(l*0.264172).toFixed(2)} Gal</div></div></ToolLayout>; };
-// 7. Area Converter
-export const AreaConv = () => { const [m, setM]=useState(1); return <ToolLayout title="Area Converter" desc="Sq Meters to Sq Feet."><div className="flex gap-2"><input type="number" value={m} onChange={e=>setM(+e.target.value)} className="p-3 border rounded flex-1 text-center"/> <span className="p-3 font-bold">m² =</span> <div className="p-3 border rounded flex-1 text-center bg-gray-50 text-blue-600 font-bold">{(m*10.7639).toFixed(2)} sq ft</div></div></ToolLayout>; };
-// 8. Date Difference
-export const DateDiff = () => { const [d1, setD1]=useState(''); const [d2, setD2]=useState(''); const diff = (new Date(d2)-new Date(d1))/(1000*60*60*24); return <ToolLayout title="Date Difference" desc="Days between two dates."><div className="flex gap-2"><input type="date" value={d1} onChange={e=>setD1(e.target.value)} className="p-3 border rounded flex-1"/><input type="date" value={d2} onChange={e=>setD2(e.target.value)} className="p-3 border rounded flex-1"/></div><div className="text-3xl text-blue-600 font-bold text-center mt-4">{d1&&d2 ? Math.abs(diff) + ' Days' : '-'}</div></ToolLayout>; };
-// 9. Age Calculator
-export const AgeCalc = () => { const [d, setD]=useState(''); const age = Math.floor((new Date() - new Date(d))/(1000*60*60*24*365.25)); return <ToolLayout title="Age Calculator" desc="Calculate exact age in years."><input type="date" value={d} onChange={e=>setD(e.target.value)} className="p-3 border rounded w-full"/><div className="text-3xl text-blue-600 font-bold text-center mt-4">{d ? age + ' Years Old' : '-'}</div></ToolLayout>; };
-// 10. Leap Year
-export const LeapYear = () => { const [y, setY]=useState(2024); const isL = (y%4===0 && y%100!==0) || y%400===0; return <ToolLayout title="Leap Year Checker" desc="Check if a year is a leap year."><input type="number" value={y} onChange={e=>setY(+e.target.value)} className="p-3 border rounded w-full text-center"/><div className={`text-3xl font-bold text-center mt-4 ${isL?'text-green-600':'text-red-600'}`}>{isL ? 'Yes' : 'No'}</div></ToolLayout>; };
-// 11. Prime Number
-export const PrimeCheck = () => { const [n, setN]=useState(7); const isP = (num) => { for(let i=2, s=Math.sqrt(num); i<=s; i++) if(num%i===0) return false; return num>1; }; return <ToolLayout title="Prime Checker" desc="Check if a number is prime."><input type="number" value={n} onChange={e=>setN(+e.target.value)} className="p-3 border rounded w-full text-center"/><div className={`text-3xl font-bold text-center mt-4 ${isP(n)?'text-green-600':'text-red-600'}`}>{isP(n) ? 'Prime Number' : 'Not Prime'}</div></ToolLayout>; };
-// 12. Base Converter
-export const BaseConv = () => { const [n, setN]=useState('255'); return <ToolLayout title="Base Converter" desc="Decimal to Hex & Octal."><input type="number" value={n} onChange={e=>setN(e.target.value)} className="p-3 border rounded w-full text-center"/><div className="flex gap-4 mt-4"><div className="flex-1 bg-gray-50 p-4 rounded text-center">Hex: <b>{Number(n).toString(16).toUpperCase()}</b></div><div className="flex-1 bg-gray-50 p-4 rounded text-center">Octal: <b>{Number(n).toString(8)}</b></div><div className="flex-1 bg-gray-50 p-4 rounded text-center">Binary: <b>{Number(n).toString(2)}</b></div></div></ToolLayout>; };
-// 13. Average Calculator
-export const AvgCalc = () => { const [t, setT]=useState('10, 20, 30'); const arr = t.split(',').map(n=>+n).filter(n=>!isNaN(n)); const avg = arr.reduce((a,b)=>a+b,0)/arr.length; return <ToolLayout title="Average Calculator" desc="Find the average of a list of numbers (comma separated)."><input type="text" value={t} onChange={e=>setT(e.target.value)} className="p-3 border rounded w-full"/><div className="text-3xl text-blue-600 font-bold text-center mt-4">{(avg||0).toFixed(2)}</div></ToolLayout>; };
-// 14. Text to Hex
-export const TextToHex = () => { const [t, setT]=useState(''); const h = t.split('').map(c=>c.charCodeAt(0).toString(16).padStart(2,'0')).join(' '); return <ToolLayout title="Text to Hex" desc="String to Hexadecimal."><textarea value={t} onChange={e=>setT(e.target.value)} className="p-3 border rounded w-full"/><div className="p-4 bg-gray-50 font-mono break-all">{h}</div><CopyBtn text={h}/></ToolLayout>; };
-// 15. Hex to Text
-export const HexToText = () => { const [h, setH]=useState(''); const t = h.split(' ').map(c=>String.fromCharCode(parseInt(c,16))).join(''); return <ToolLayout title="Hex to Text" desc="Hexadecimal to String."><textarea value={h} onChange={e=>setH(e.target.value)} className="p-3 border rounded w-full font-mono"/><div className="p-4 bg-gray-50 break-all">{t}</div><CopyBtn text={t}/></ToolLayout>; };
-// 16. Unix Timestamp
-export const UnixConv = () => { const [ts, setTs]=useState(Math.floor(Date.now()/1000)); return <ToolLayout title="Unix Timestamp Converter" desc="Seconds to Date."><input type="number" value={ts} onChange={e=>setTs(+e.target.value)} className="p-3 border rounded w-full text-center"/><div className="text-xl text-blue-600 font-bold text-center mt-4">{new Date(ts*1000).toLocaleString()}</div></ToolLayout>; };
-// 17. Regex Tester
-export const RegexTester = () => { const [r, setR]=useState('\\d+'); const [t, setT]=useState('abc 123 def 456'); const m = (() => { try { return t.match(new RegExp(r, 'g'))?.join(', ') || 'No match'; } catch(e){ return 'Invalid Regex'; }})(); return <ToolLayout title="Regex Tester" desc="Test regular expressions."><input type="text" value={r} onChange={e=>setR(e.target.value)} className="p-3 border rounded w-full font-mono mb-2" placeholder="Regex pattern..."/><textarea value={t} onChange={e=>setT(e.target.value)} className="p-3 border rounded w-full"/><div className="p-4 bg-gray-50 font-mono break-all mt-2">Matches: {m}</div></ToolLayout>; };
-// 18. Line Break Remover
-export const LineBreakRemover = () => { const [t, setT]=useState(''); const res = t.replace(/(\r\n|\n|\r)/gm, " "); return <ToolLayout title="Line Break Remover" desc="Remove all newlines."><textarea rows="4" value={t} onChange={e=>setT(e.target.value)} className="p-3 border rounded w-full"/><div className="p-4 bg-gray-50 break-all">{res}</div><CopyBtn text={res}/></ToolLayout>; };
-// 19. Duplicate Line Remover
-export const DupLineRemover = () => { const [t, setT]=useState(''); const res = [...new Set(t.split('\n'))].join('\n'); return <ToolLayout title="Remove Duplicate Lines" desc="Clean up lists."><textarea rows="4" value={t} onChange={e=>setT(e.target.value)} className="p-3 border rounded w-full whitespace-pre"/><div className="p-4 bg-gray-50 whitespace-pre overflow-auto max-h-40">{res}</div><CopyBtn text={res}/></ToolLayout>; };
-// 20. Alphabetizer
-export const Alphabetizer = () => { const [t, setT]=useState(''); const res = t.split('\n').sort((a,b)=>a.localeCompare(b)).join('\n'); return <ToolLayout title="Alphabetize List" desc="Sort lines alphabetically."><textarea rows="4" value={t} onChange={e=>setT(e.target.value)} className="p-3 border rounded w-full whitespace-pre"/><div className="p-4 bg-gray-50 whitespace-pre overflow-auto max-h-40">{res}</div><CopyBtn text={res}/></ToolLayout>; };
-// 21. Data Size Converter
-export const DataSizeConv = () => { const [mb, setMb]=useState(1024); return <ToolLayout title="Data Size Converter" desc="MB to GB & KB."><input type="number" value={mb} onChange={e=>setMb(+e.target.value)} className="p-3 border rounded w-full text-center" placeholder="MB"/><div className="flex gap-4 mt-4"><div className="flex-1 bg-gray-50 p-4 rounded text-center">KB: <b>{mb*1024}</b></div><div className="flex-1 bg-gray-50 p-4 rounded text-center">GB: <b>{(mb/1024).toFixed(4)}</b></div></div></ToolLayout>; };
-// 22. IP Finder
-export const IpFinder = () => { const [ip, setIp]=useState(''); useEffect(()=>{ fetch('https://api.ipify.org?format=json').then(r=>r.json()).then(d=>setIp(d.ip)).catch(()=>setIp('Error')); },[]); return <ToolLayout title="What is my IP?" desc="Your public IPv4 address."><div className="text-4xl text-blue-600 font-bold text-center py-4">{ip||'Loading...'}</div><CopyBtn text={ip}/></ToolLayout>; };
-// 23. MAC Generator
-export const MacGen = () => { const [m, setM]=useState(''); const gen = () => setM("XX:XX:XX:XX:XX:XX".replace(/X/g, ()=> "0123456789ABCDEF"[Math.floor(Math.random()*16)])); useEffect(gen,[]); return <ToolLayout title="MAC Address Generator" desc="Generate a random MAC address."><div className="text-4xl text-blue-600 font-mono text-center py-4">{m}</div><button onClick={gen} className="bg-blue-600 text-white font-bold p-2 rounded w-full">Generate New</button><CopyBtn text={m}/></ToolLayout>; };
-// 24. CSV to JSON
-export const CsvToJson = () => { const [c, setC]=useState('a,b\n1,2'); const j = (() => { try { const lines = c.split('\n'); const h = lines[0].split(','); return JSON.stringify(lines.slice(1).map(l => { const v = l.split(','); return h.reduce((acc, cur, i) => ({...acc, [cur]: v[i]}), {}); }), null, 2); } catch(e){ return 'Error'; }})(); return <ToolLayout title="CSV to JSON" desc="Convert CSV text to JSON array."><textarea rows="3" value={c} onChange={e=>setC(e.target.value)} className="p-3 border rounded w-full"/><div className="p-4 bg-gray-50 whitespace-pre overflow-auto max-h-40 font-mono text-sm">{j}</div><CopyBtn text={j}/></ToolLayout>; };
-// 25. JSON to CSV
-export const JsonToCsv = () => { const [j, setJ]=useState('[{"a":1,"b":2}]'); const c = (() => { try { const arr = JSON.parse(j); if(!arr.length) return ''; const h = Object.keys(arr[0]).join(','); const rows = arr.map(o => Object.values(o).join(',')).join('\n'); return `${h}\n${rows}`; } catch(e){ return 'Error'; }})(); return <ToolLayout title="JSON to CSV" desc="Convert JSON array to CSV."><textarea rows="3" value={j} onChange={e=>setJ(e.target.value)} className="p-3 border rounded w-full font-mono"/><div className="p-4 bg-gray-50 whitespace-pre overflow-auto max-h-40">{c}</div><CopyBtn text={c}/></ToolLayout>; };
-// 26. Roman Numeral
-export const RomanConv = () => { const [n, setN]=useState(2024); const toRoman = (num) => { const map = {M:1000,CM:900,D:500,CD:400,C:100,XC:90,L:50,XL:40,X:10,IX:9,V:5,IV:4,I:1}; let r = ''; for(let i in map){ while(num>=map[i]){ r+=i; num-=map[i]; } } return r; }; return <ToolLayout title="Roman Numeral Converter" desc="Decimal to Roman."><input type="number" value={n} onChange={e=>setN(+e.target.value)} className="p-3 border rounded w-full text-center"/><div className="text-4xl text-blue-600 font-bold text-center mt-4">{toRoman(n)}</div></ToolLayout>; };
-// 27. CAGR Calculator
-export const CagrCalc = () => { const [i, setI]=useState(1000); const [f, setF]=useState(2000); const [y, setY]=useState(5); const cagr = (Math.pow(f/i, 1/y)-1)*100; return <ToolLayout title="CAGR Calculator" desc="Compound Annual Growth Rate."><div className="flex gap-2"><input type="number" placeholder="Initial" value={i} onChange={e=>setI(+e.target.value)} className="p-3 border rounded flex-1"/><input type="number" placeholder="Final" value={f} onChange={e=>setF(+e.target.value)} className="p-3 border rounded flex-1"/><input type="number" placeholder="Years" value={y} onChange={e=>setY(+e.target.value)} className="p-3 border rounded flex-1"/></div><div className="text-3xl text-blue-600 font-bold text-center mt-4">{(cagr||0).toFixed(2)}%</div></ToolLayout>; };
-// 28. Days to Target
-export const DaysToTarget = () => { const [d, setD]=useState(''); const left = Math.ceil((new Date(d) - new Date())/(1000*60*60*24)); return <ToolLayout title="Countdown Calculator" desc="Days until a target date."><input type="date" value={d} onChange={e=>setD(e.target.value)} className="p-3 border rounded w-full"/><div className="text-3xl text-blue-600 font-bold text-center mt-4">{d ? (left>0 ? left+' Days Left' : 'Past Date') : '-'}</div></ToolLayout>; };
-// 29. Markdown to HTML
-export const MdToHtml = () => { const [m, setM]=useState('# Hello\n**Bold**'); const h = m.replace(/^# (.*$)/gim, '<h1>$1</h1>').replace(/\*\*(.*)\*\*/gim, '<b>$1</b>').replace(/\n/gim, '<br>'); return <ToolLayout title="Basic MD to HTML" desc="Markdown to HTML string."><textarea rows="3" value={m} onChange={e=>setM(e.target.value)} className="p-3 border rounded w-full"/><div className="p-4 bg-gray-50 font-mono break-all mt-2">{h}</div><CopyBtn text={h}/></ToolLayout>; };
-// 30. ASCII Converter
-export const AsciiConv = () => { const [t, setT]=useState('ABC'); const a = t.split('').map(c=>c.charCodeAt(0)).join(' '); return <ToolLayout title="ASCII Converter" desc="Text to ASCII codes."><textarea rows="2" value={t} onChange={e=>setT(e.target.value)} className="p-3 border rounded w-full"/><div className="p-4 bg-gray-50 font-mono break-all mt-2">{a}</div><CopyBtn text={a}/></ToolLayout>; };
+const CopyBtn = ({ text }) => (
+  <button onClick={() => navigator.clipboard.writeText(text)} className="bg-gray-100 hover:bg-gray-200 text-gray-700 px-4 py-2 rounded-lg text-sm font-bold flex items-center gap-2 justify-center transition">
+    <Copy size={16}/> Copy Result
+  </button>
+);
+
+const GenerateBtn = ({ onClick }) => (
+  <button onClick={onClick} className="w-full bg-blue-600 hover:bg-blue-700 text-white font-black py-4 rounded-xl shadow-md transition-all mt-4 hover:scale-[1.02]">
+    GENERATE / CALCULATE
+  </button>
+);
+
+const ResultBox = ({ result }) => (
+  <div className="mt-4">
+    <h3 className="text-xs font-bold text-gray-400 uppercase mb-2 text-center">Result</h3>
+    <div className="p-4 bg-gray-50 border border-gray-200 rounded-xl font-bold text-xl text-blue-600 break-all whitespace-pre-wrap text-center min-h-[80px] flex items-center justify-center shadow-inner">
+      {result}
+    </div>
+  </div>
+);
+
+export function LoanCalc() {
+  const [a,setA]=useState(10000); const [r,setR]=useState(5); const [m,setM]=useState(12);
+  const [res, setRes] = useState('-');
+  const handle = () => {
+    const rate = r/100/12; const p = a*rate/(1-Math.pow(1+rate,-m));
+    setRes(`Monthly: $${p.toFixed(2)}\nTotal: $${(p*m).toFixed(2)}`);
+  };
+  return (
+    <ToolLayout title="Loan Calculator" desc="Calculate loan payments.">
+      <div className="flex gap-2">
+        <input type="number" className="p-3 border rounded-lg w-full" value={a} onChange={e=>setA(+e.target.value)} placeholder="Amount" />
+        <input type="number" className="p-3 border rounded-lg w-full" value={r} onChange={e=>setR(+e.target.value)} placeholder="Rate %" />
+        <input type="number" className="p-3 border rounded-lg w-full" value={m} onChange={e=>setM(+e.target.value)} placeholder="Months" />
+      </div>
+      <GenerateBtn onClick={handle} />
+      <ResultBox result={res} />
+    </ToolLayout>
+  );
+}
+
+export function RoiCalc() {
+  const [inv,setInv]=useState(1000); const [ret,setRet]=useState(1500);
+  const [res, setRes] = useState('-');
+  const handle = () => setRes(`ROI: ${(((ret-inv)/inv)*100).toFixed(2)}%`);
+  return (
+    <ToolLayout title="ROI Calculator" desc="Return on Investment.">
+      <div className="flex gap-2">
+        <input type="number" className="p-3 border rounded-lg w-full" value={inv} onChange={e=>setInv(+e.target.value)} placeholder="Invested" />
+        <input type="number" className="p-3 border rounded-lg w-full" value={ret} onChange={e=>setRet(+e.target.value)} placeholder="Returned" />
+      </div>
+      <GenerateBtn onClick={handle} />
+      <ResultBox result={res} />
+    </ToolLayout>
+  );
+}
+
+export function MarginCalc() {
+  const [cost,setCost]=useState(50); const [rev,setRev]=useState(100);
+  const [res, setRes] = useState('-');
+  const handle = () => setRes(`Margin: ${(((rev-cost)/rev)*100).toFixed(2)}%`);
+  return (
+    <ToolLayout title="Profit Margin" desc="Calculate profit margin.">
+      <div className="flex gap-2">
+        <input type="number" className="p-3 border rounded-lg w-full" value={cost} onChange={e=>setCost(+e.target.value)} placeholder="Cost" />
+        <input type="number" className="p-3 border rounded-lg w-full" value={rev} onChange={e=>setRev(+e.target.value)} placeholder="Revenue" />
+      </div>
+      <GenerateBtn onClick={handle} />
+      <ResultBox result={res} />
+    </ToolLayout>
+  );
+}
+
+export function SalaryCalc() {
+  const [hr,setHr]=useState(20); const [h,setH]=useState(40);
+  const [res, setRes] = useState('-');
+  const handle = () => setRes(`Yearly: $${(hr*h*52).toFixed(2)}`);
+  return (
+    <ToolLayout title="Salary Calculator" desc="Hourly to yearly.">
+      <div className="flex gap-2">
+        <input type="number" className="p-3 border rounded-lg w-full" value={hr} onChange={e=>setHr(+e.target.value)} placeholder="Rate/hr" />
+        <input type="number" className="p-3 border rounded-lg w-full" value={h} onChange={e=>setH(+e.target.value)} placeholder="Hours/wk" />
+      </div>
+      <GenerateBtn onClick={handle} />
+      <ResultBox result={res} />
+    </ToolLayout>
+  );
+}
+
+export function SpeedConv() {
+  const [kmh,setKmh]=useState(100);
+  const [res, setRes] = useState('-');
+  const handle = () => setRes(`${kmh} km/h = ${(kmh/1.609).toFixed(2)} mph`);
+  return (
+    <ToolLayout title="Speed Converter" desc="km/h to mph.">
+      <input type="number" className="p-3 border rounded-lg w-full" value={kmh} onChange={e=>setKmh(+e.target.value)} placeholder="km/h" />
+      <GenerateBtn onClick={handle} />
+      <ResultBox result={res} />
+    </ToolLayout>
+  );
+}
+
+export function VolConv() {
+  const [l,setL]=useState(1);
+  const [res, setRes] = useState('-');
+  const handle = () => setRes(`${l} L = ${(l*0.264172).toFixed(2)} gal`);
+  return (
+    <ToolLayout title="Volume Converter" desc="Liters to Gallons.">
+      <input type="number" className="p-3 border rounded-lg w-full" value={l} onChange={e=>setL(+e.target.value)} placeholder="Liters" />
+      <GenerateBtn onClick={handle} />
+      <ResultBox result={res} />
+    </ToolLayout>
+  );
+}
+
+export function AreaConv() {
+  const [sqm,setSqm]=useState(100);
+  const [res, setRes] = useState('-');
+  const handle = () => setRes(`${sqm} m² = ${(sqm*10.7639).toFixed(2)} ft²`);
+  return (
+    <ToolLayout title="Area Converter" desc="m² to ft².">
+      <input type="number" className="p-3 border rounded-lg w-full" value={sqm} onChange={e=>setSqm(+e.target.value)} placeholder="m²" />
+      <GenerateBtn onClick={handle} />
+      <ResultBox result={res} />
+    </ToolLayout>
+  );
+}
+
+export function DateDiff() {
+  const [d1,setD1]=useState(''); const [d2,setD2]=useState('');
+  const [res, setRes] = useState('-');
+  const handle = () => {
+    if(!d1 || !d2) return setRes("Select dates");
+    setRes(`${Math.abs((new Date(d2)-new Date(d1))/(1000*60*60*24))} days`);
+  };
+  return (
+    <ToolLayout title="Date Difference" desc="Days between dates.">
+      <div className="flex gap-2">
+        <input type="date" className="p-3 border rounded-lg w-full" value={d1} onChange={e=>setD1(e.target.value)} />
+        <input type="date" className="p-3 border rounded-lg w-full" value={d2} onChange={e=>setD2(e.target.value)} />
+      </div>
+      <GenerateBtn onClick={handle} />
+      <ResultBox result={res} />
+    </ToolLayout>
+  );
+}
+
+export function AgeCalc() {
+  const [d,setD]=useState('');
+  const [res, setRes] = useState('-');
+  const handle = () => {
+    if(!d) return setRes("Select date");
+    setRes(`Age: ${Math.floor((new Date()-new Date(d))/(1000*60*60*24*365.25))} years`);
+  };
+  return (
+    <ToolLayout title="Age Calculator" desc="Calculate age.">
+      <input type="date" className="p-3 border rounded-lg w-full" value={d} onChange={e=>setD(e.target.value)} />
+      <GenerateBtn onClick={handle} />
+      <ResultBox result={res} />
+    </ToolLayout>
+  );
+}
+
+export function LeapYear() {
+  const [y,setY]=useState(new Date().getFullYear());
+  const [res, setRes] = useState('-');
+  const handle = () => setRes((y%4===0&&y%100!==0)||(y%400===0) ? '✅ Leap Year' : '❌ Not a Leap Year');
+  return (
+    <ToolLayout title="Leap Year" desc="Check if year is leap.">
+      <input type="number" className="p-3 border rounded-lg w-full" value={y} onChange={e=>setY(+e.target.value)} placeholder="Year" />
+      <GenerateBtn onClick={handle} />
+      <ResultBox result={res} />
+    </ToolLayout>
+  );
+}
+
+export function PrimeCheck() {
+  const [n,setN]=useState(7);
+  const [res, setRes] = useState('-');
+  const handle = () => {
+    let p=true; if(n<2) p=false;
+    for(let i=2;i<=Math.sqrt(n);i++) if(n%i===0) p=false;
+    setRes(p ? '✅ Prime' : '❌ Composite');
+  };
+  return (
+    <ToolLayout title="Prime Checker" desc="Check if prime.">
+      <input type="number" className="p-3 border rounded-lg w-full" value={n} onChange={e=>setN(+e.target.value)} placeholder="Number" />
+      <GenerateBtn onClick={handle} />
+      <ResultBox result={res} />
+    </ToolLayout>
+  );
+}
+
+export function BaseConv() {
+  const [n,setN]=useState('10'); const [b1,setB1]=useState(10); const [b2,setB2]=useState(2);
+  const [res, setRes] = useState('-');
+  const handle = () => {
+    try { setRes(parseInt(n,b1).toString(b2)); } catch(e) { setRes("Error"); }
+  };
+  return (
+    <ToolLayout title="Base Converter" desc="Convert bases.">
+      <div className="flex gap-2">
+        <input className="p-3 border rounded-lg w-full" value={n} onChange={e=>setN(e.target.value)} placeholder="Value" />
+        <input type="number" className="p-3 border rounded-lg w-full" value={b1} onChange={e=>setB1(+e.target.value)} placeholder="From Base" />
+        <input type="number" className="p-3 border rounded-lg w-full" value={b2} onChange={e=>setB2(+e.target.value)} placeholder="To Base" />
+      </div>
+      <GenerateBtn onClick={handle} />
+      <ResultBox result={res} />
+    </ToolLayout>
+  );
+}
+
+export function AvgCalc() {
+  const [t,setT]=useState('');
+  const [res, setRes] = useState('-');
+  const handle = () => {
+    let a=t.split(',').map(Number).filter(n=>!isNaN(n));
+    setRes(a.length ? (a.reduce((x,y)=>x+y,0)/a.length).toFixed(2) : 'Invalid');
+  };
+  return (
+    <ToolLayout title="Average Calc" desc="Avg of comma-separated nums.">
+      <input className="p-3 border rounded-lg w-full" value={t} onChange={e=>setT(e.target.value)} placeholder="1, 2, 3" />
+      <GenerateBtn onClick={handle} />
+      <ResultBox result={res} />
+    </ToolLayout>
+  );
+}
+
+export function TextToHex() {
+  const [t,setT]=useState('');
+  const [res, setRes] = useState('-');
+  const handle = () => setRes(t.split('').map(c=>c.charCodeAt(0).toString(16).padStart(2,'0')).join(' '));
+  return (
+    <ToolLayout title="Text to Hex" desc="String to Hex.">
+      <input className="p-3 border rounded-lg w-full" value={t} onChange={e=>setT(e.target.value)} placeholder="Text" />
+      <GenerateBtn onClick={handle} />
+      <ResultBox result={res} />
+    </ToolLayout>
+  );
+}
+
+export function HexToText() {
+  const [t,setT]=useState('');
+  const [res, setRes] = useState('-');
+  const handle = () => setRes(t.split(' ').map(h=>String.fromCharCode(parseInt(h,16))).join(''));
+  return (
+    <ToolLayout title="Hex to Text" desc="Hex to String.">
+      <input className="p-3 border rounded-lg w-full" value={t} onChange={e=>setT(e.target.value)} placeholder="Hex (space separated)" />
+      <GenerateBtn onClick={handle} />
+      <ResultBox result={res} />
+    </ToolLayout>
+  );
+}
+
+export function UnixConv() {
+  const [t,setT]=useState('');
+  const [res, setRes] = useState('-');
+  const handle = () => setRes(new Date(t*1000).toLocaleString());
+  return (
+    <ToolLayout title="Unix Timestamp" desc="Unix to Date.">
+      <input type="number" className="p-3 border rounded-lg w-full" value={t} onChange={e=>setT(+e.target.value)} placeholder="Unix Timestamp" />
+      <GenerateBtn onClick={handle} />
+      <ResultBox result={res} />
+    </ToolLayout>
+  );
+}
+
+export function RegexTester() {
+  const [r,setR]=useState(''); const [t,setT]=useState('');
+  const [res, setRes] = useState('-');
+  const handle = () => {
+    try { setRes(new RegExp(r,'g').test(t) ? '✅ Match Found' : '❌ No Match'); } catch(e) { setRes("Invalid Regex"); }
+  };
+  return (
+    <ToolLayout title="Regex Tester" desc="Test simple regex.">
+      <input className="p-3 border rounded-lg w-full mb-2" value={r} onChange={e=>setR(e.target.value)} placeholder="Regex (e.g. \d+)" />
+      <input className="p-3 border rounded-lg w-full" value={t} onChange={e=>setT(e.target.value)} placeholder="Test String" />
+      <GenerateBtn onClick={handle} />
+      <ResultBox result={res} />
+    </ToolLayout>
+  );
+}
+
+export function LineBreakRemover() {
+  const [t,setT]=useState('');
+  const [res, setRes] = useState('-');
+  const handle = () => setRes(t.replace(/[\r\n]+/g, ' '));
+  return (
+    <ToolLayout title="Line Break Remover" desc="Remove newlines.">
+      <textarea rows="4" className="p-3 border rounded-lg w-full" value={t} onChange={e=>setT(e.target.value)} />
+      <GenerateBtn onClick={handle} />
+      <ResultBox result={res} />
+      <CopyBtn text={res} />
+    </ToolLayout>
+  );
+}
+
+export function DupLineRemover() {
+  const [t,setT]=useState('');
+  const [res, setRes] = useState('-');
+  const handle = () => setRes([...new Set(t.split('\n'))].join('\n'));
+  return (
+    <ToolLayout title="Remove Dupes" desc="Remove duplicate lines.">
+      <textarea rows="4" className="p-3 border rounded-lg w-full" value={t} onChange={e=>setT(e.target.value)} />
+      <GenerateBtn onClick={handle} />
+      <ResultBox result={res} />
+      <CopyBtn text={res} />
+    </ToolLayout>
+  );
+}
+
+export function Alphabetizer() {
+  const [t,setT]=useState('');
+  const [res, setRes] = useState('-');
+  const handle = () => setRes(t.split('\n').sort().join('\n'));
+  return (
+    <ToolLayout title="Alphabetizer" desc="Sort lines alphabetically.">
+      <textarea rows="4" className="p-3 border rounded-lg w-full" value={t} onChange={e=>setT(e.target.value)} />
+      <GenerateBtn onClick={handle} />
+      <ResultBox result={res} />
+      <CopyBtn text={res} />
+    </ToolLayout>
+  );
+}
+
+export function DataSizeConv() {
+  const [b,setB]=useState(1024);
+  const [res, setRes] = useState('-');
+  const handle = () => setRes(`${b} Bytes = ${(b/1024).toFixed(2)} KB = ${(b/1024/1024).toFixed(2)} MB`);
+  return (
+    <ToolLayout title="Data Size Conv" desc="Bytes to KB/MB.">
+      <input type="number" className="p-3 border rounded-lg w-full" value={b} onChange={e=>setB(+e.target.value)} placeholder="Bytes" />
+      <GenerateBtn onClick={handle} />
+      <ResultBox result={res} />
+    </ToolLayout>
+  );
+}
+
+export function IpFinder() {
+  const [ip,setIp]=useState('Click generate to find IP');
+  const handle = () => fetch('https://api.ipify.org?format=json').then(r=>r.json()).then(d=>setIp(d.ip)).catch(()=>setIp('Error'));
+  return (
+    <ToolLayout title="What is my IP?" desc="Find public IP.">
+      <GenerateBtn onClick={handle} />
+      <ResultBox result={ip} />
+    </ToolLayout>
+  );
+}
+
+export function MacGen() {
+  const [res, setRes] = useState('-');
+  const handle = () => setRes("XX:XX:XX:XX:XX:XX".replace(/X/g, ()=>"0123456789ABCDEF".charAt(Math.floor(Math.random()*16))));
+  return (
+    <ToolLayout title="MAC Generator" desc="Random MAC Address.">
+      <GenerateBtn onClick={handle} />
+      <ResultBox result={res} />
+      <CopyBtn text={res} />
+    </ToolLayout>
+  );
+}
+
+export function CsvToJson() {
+  const [t,setT]=useState('');
+  const [res, setRes] = useState('-');
+  const handle = () => {
+    try {
+      const lines = t.trim().split('\n');
+      const h = lines[0].split(',');
+      const o = lines.slice(1).map(l => {
+        let obj = {}; l.split(',').forEach((v,i) => obj[h[i]] = v); return obj;
+      });
+      setRes(JSON.stringify(o, null, 2));
+    } catch(e) { setRes("Invalid CSV"); }
+  };
+  return (
+    <ToolLayout title="CSV to JSON" desc="Convert CSV text to JSON.">
+      <textarea rows="4" className="p-3 border rounded-lg w-full" value={t} onChange={e=>setT(e.target.value)} />
+      <GenerateBtn onClick={handle} />
+      <ResultBox result={res} />
+      <CopyBtn text={res} />
+    </ToolLayout>
+  );
+}
+
+export function JsonToCsv() {
+  const [t,setT]=useState('');
+  const [res, setRes] = useState('-');
+  const handle = () => {
+    try {
+      const obj = JSON.parse(t);
+      const items = Array.isArray(obj) ? obj : [obj];
+      const h = Object.keys(items[0]).join(',');
+      const r = items.map(i => Object.values(i).join(',')).join('\n');
+      setRes(h + '\n' + r);
+    } catch(e) { setRes("Invalid JSON"); }
+  };
+  return (
+    <ToolLayout title="JSON to CSV" desc="Convert JSON to CSV.">
+      <textarea rows="4" className="p-3 border rounded-lg w-full" value={t} onChange={e=>setT(e.target.value)} />
+      <GenerateBtn onClick={handle} />
+      <ResultBox result={res} />
+      <CopyBtn text={res} />
+    </ToolLayout>
+  );
+}
+
+export function RomanConv() {
+  const [n,setN]=useState(10);
+  const [res, setRes] = useState('-');
+  const handle = () => {
+    let num = n; let result = '';
+    const roman = {M:1000,CM:900,D:500,CD:400,C:100,XC:90,L:50,XL:40,X:10,IX:9,V:5,IV:4,I:1};
+    for(let i in roman) { while(num >= roman[i]) { result += i; num -= roman[i]; } }
+    setRes(result);
+  };
+  return (
+    <ToolLayout title="Roman Numerals" desc="Int to Roman.">
+      <input type="number" className="p-3 border rounded-lg w-full" value={n} onChange={e=>setN(+e.target.value)} max="3999" />
+      <GenerateBtn onClick={handle} />
+      <ResultBox result={res} />
+    </ToolLayout>
+  );
+}
+
+export function CagrCalc() {
+  const [b,setB]=useState(1000); const [e,setE]=useState(2000); const [y,setY]=useState(5);
+  const [res, setRes] = useState('-');
+  const handle = () => setRes(`${((Math.pow(e/b, 1/y)-1)*100).toFixed(2)}%`);
+  return (
+    <ToolLayout title="CAGR Calc" desc="Compound Annual Growth Rate.">
+      <div className="flex gap-2">
+        <input type="number" className="p-3 border rounded-lg w-full" value={b} onChange={ev=>setB(+ev.target.value)} placeholder="Beginning" />
+        <input type="number" className="p-3 border rounded-lg w-full" value={e} onChange={ev=>setE(+ev.target.value)} placeholder="Ending" />
+        <input type="number" className="p-3 border rounded-lg w-full" value={y} onChange={ev=>setY(+ev.target.value)} placeholder="Years" />
+      </div>
+      <GenerateBtn onClick={handle} />
+      <ResultBox result={res} />
+    </ToolLayout>
+  );
+}
+
+export function DaysToTarget() {
+  const [d,setD]=useState('');
+  const [res, setRes] = useState('-');
+  const handle = () => {
+    if(!d) return setRes("Select date");
+    setRes(`${Math.ceil((new Date(d)-new Date())/(1000*60*60*24))} days remaining`);
+  };
+  return (
+    <ToolLayout title="Countdown" desc="Days until date.">
+      <input type="date" className="p-3 border rounded-lg w-full" value={d} onChange={e=>setD(e.target.value)} />
+      <GenerateBtn onClick={handle} />
+      <ResultBox result={res} />
+    </ToolLayout>
+  );
+}
+
+export function MdToHtml() {
+  const [t,setT]=useState('');
+  const [res, setRes] = useState('-');
+  const handle = () => setRes(t.replace(/^# (.*$)/gim, '<h1>$1</h1>').replace(/\*\*(.*)\*\*/gim, '<b>$1</b>').replace(/\n/gim, '<br>'));
+  return (
+    <ToolLayout title="MD to HTML" desc="Basic Markdown to HTML.">
+      <textarea rows="4" className="p-3 border rounded-lg w-full" value={t} onChange={e=>setT(e.target.value)} />
+      <GenerateBtn onClick={handle} />
+      <ResultBox result={res} />
+      <CopyBtn text={res} />
+    </ToolLayout>
+  );
+}
+
+export function AsciiConv() {
+  const [t,setT]=useState('');
+  const [res, setRes] = useState('-');
+  const handle = () => setRes(t.split('').map(c=>c.charCodeAt(0)).join(' '));
+  return (
+    <ToolLayout title="Text to ASCII" desc="String to ASCII array.">
+      <input className="p-3 border rounded-lg w-full" value={t} onChange={e=>setT(e.target.value)} />
+      <GenerateBtn onClick={handle} />
+      <ResultBox result={res} />
+      <CopyBtn text={res} />
+    </ToolLayout>
+  );
+}
